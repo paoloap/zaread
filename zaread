@@ -1,0 +1,16 @@
+#!/bin/bash
+
+actualdir=`pwd`
+directory=`echo "$@" | sed -r "s:(^.*/)[^/]+$:$actualdir/\1:"`
+file=`echo "$@" | sed -r "s:.*/([^/]+)$:\1:"`
+name=`echo "$file" | sed -r "s:(^.*)\.[^.]*$:\1:"`
+extension=`echo "$@" | sed -r "s:^.*(\.[^.]*$):\1:"`
+if [[ "$extension" == .pdf ]]; then
+  zathura "$file"
+else
+  cd $HOME/.path/tmp
+  soffice --convert-to pdf "$directory""$file" --headless
+  tmpfile="$name"".pdf"
+  zathura "$tmpfile"
+  rm "$tmpfile"
+fi
