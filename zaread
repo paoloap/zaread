@@ -1,5 +1,7 @@
 #!/bin/bash
 
+reader="zathura"
+tmpdir=".path/tmp"
 actualdir=`pwd`
 directory=`echo "$@" | sed -r "s:(^.*/)[^/]+$:$actualdir/\1:"`
 file=`echo "$@" | sed -r "s:.*/([^/]+)$:\1:"`
@@ -8,9 +10,10 @@ extension=`echo "$@" | sed -r "s:^.*(\.[^.]*$):\1:"`
 if [[ "$extension" == .pdf ]]; then
   zathura "$file"
 else
-  cd $HOME/.path/tmp
-  soffice --convert-to pdf "$directory""$file" --headless
+  cd $HOME/$tmpdir
   tmpfile="$name"".pdf"
-  zathura "$tmpfile"
-  rm "$tmpfile"
+  if [[ ! -f "$tmpfile" ]]; then
+    soffice --convert-to pdf "$directory""$file" --headless
+  fi
+  $reader "$tmpfile"
 fi
