@@ -10,5 +10,6 @@ So... I created this little trivial script that can be used as default PDF/DOC/D
 - open it with zathura (a very very VERY lightweight PDF reader)
 
 Note: the script initially assumes that you have a $HOME/.path/tmp directory in which it puts PDF files. If you don't have it, create it, or just change $tmpdir variable to what you want. Also $tmpdir doesn't delete PDF files. That's because conversion process might be slow, and it can be annoying to have to wait every time for conversion of a file that maybe you often read.
+Note 2: if for some reason (which I discourage) you don't want to adopt zathura to open files, but your favourite pdf reader, just change $reader variable.
 
 Feel free to use and edit :)
