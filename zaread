@@ -1,19 +1,41 @@
 #!/bin/bash
+## zaread - a simple script created by paoloap.
 
+zadir="$HOME"'/.zaread'
 reader="zathura"
-tmpdir=".path/tmp"
+# if ~/.zaread doesn't exist, we create it.
+if [[ ! -d "$zadir" ]]; then
+  mkdir "$zadir"
+  mkdir "$zadir"/cksum
+fi
+# if zathura is not installed, we force the user to choose a pdf reader
+# after three wrong commands, the script exits 1
+# if the user inserts a command that exists but is not a pdf reader then... then fuck him.
+counter=0
+while [[ -z `command -v "$reader"` ]]; do
+  if [ $counter -gt 3 ]; then exit 1; fi
+  let counter+=1
+  echo "Seems that you don't have zathura installed. Please choose an installed PDF reader:"
+  read reader
+done
+echo "We'll read PDF with $reader."
 actualdir=`pwd`
 directory=`echo "$@" | sed -r "s:(^.*/)[^/]+$:$actualdir/\1:"`
 file=`echo "$@" | sed -r "s:.*/([^/]+)$:\1:"`
 name=`echo "$file" | sed -r "s:(^.*)\.[^.]*$:\1:"`
 extension=`echo "$@" | sed -r "s:^.*(\.[^.]*$):\1:"`
+# if extension is pdf, then
 if [[ "$extension" == .pdf ]]; then
-  zathura "$file"
+  $reader "$file"
 else
-  cd $HOME/$tmpdir
-  tmpfile="$name"".pdf"
-  if [[ ! -f "$tmpfile" ]]; then
+  cd $zadir
+  pdffile="$name"".pdf"
+  check=`cksum "$directory""$file" | awk '{print $1}'`
+  # if pdf version hasn't ever been created, or it changed, then
+  # make conversion and store the checksum.
+  if [[ ( ! -f "$pdffile" ) || ( ! "$check" == `cat cksum/"$file".check` ) ]]; then
     soffice --convert-to pdf "$directory""$file" --headless
+    echo "$check" > cksum/"$file".check
   fi
-  $reader "$tmpfile"
+  $reader "$pdffile"
 fi
