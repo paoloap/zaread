@@ -3,7 +3,7 @@ A (very) lightweight MS Office files reader
 
 This simple bash script needs libreoffice installed and has zathura pdf reader as optional dependence
 
-At work I often need to open doc, docx, ppt, pptx files in read only mode. I hate libreoffice interface with all those buttons (useless if I just need to view file content), and I hate presentation mode, because it forces fullscreen mode and I want the freedom to open Office files in a "normal" window, considering that I have a tiling window.
+At work I often need to open doc, docx, ppt, pptx files in read only mode. I hate libreoffice interface with all those buttons (useless if I just need to view file content), and I hate presentation mode, because it forces fullscreen mode and I want the freedom to open Office files in a "normal" window, considering that I have a tiling wm.
 
 So... I created this trivial script that can be used as default PDF/DOC/DOCX/ODF/PPT/PPTX/etc reader. It just:
 - converts the argument file to pdf using libreoffice embedded converter (soffice --converto-to);
