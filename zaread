@@ -2,13 +2,13 @@
 ## zaread - a simple script created by paoloap.
 
 # default variables
-zadir="$HOME"'/.zaread'
+zadir="$HOME"'/.zaread/'
 reader="zathura"
 
 # if ~/.zaread doesn't exist, we create it.
 if [[ ! -d "$zadir" ]]; then
   mkdir "$zadir"
-  mkdir "$zadir"/cksum
+  mkdir "$zadir"cksum
 fi
 
 # if no arguments exit.
@@ -26,26 +26,36 @@ while [[ -z `command -v "$reader"` ]]; do
 done
 echo "We'll read PDF with $reader."
 
-# create position and file variables
-actualdir=`pwd`
-directory=`echo "$@" | sed -r "s:(^.*/)[^/]+$:$actualdir/\1:"`
-file=`echo "$@" | sed -r "s:.*/([^/]+)$:\1:"`
-name=`echo "$file" | sed -r "s:(^.*)\.[^.]*$:\1:"`
-extension=`echo "$@" | sed -r "s:^.*(\.[^.]*$):\1:"`
 
-# if extension is pdf, then just read the file
-if [[ "$extension" == .pdf ]]; then
-  $reader "$file"
+## create position and file variables ##
+
+# complete file name (path excluded):
+file=`echo "$@" | rev | cut -d'/' -f1 | rev`
+
+# complete directory path:
+# if it has been inserted absolute path ($@ starts with '/')
+if [[ $@ =~ ^/ ]]; then
+  directory=`echo "$@" | rev | cut -d'/' -f2- | rev`"/"
+# else (relative path inserted)
+else
+  dir=`pwd`"/"`echo "$@" | sed 's|.[^/]*$||'`"/"
+  directory=`echo "$dir" | sed 's|//|/|'`
+fi
+echo "$directory""$file"
+
+# if file type is pdf, then just read the file
+if [[ `file "$directory""$file" | cut -d':' -f2 | cut -d' ' -f2` == "PDF"  ]]; then
+  echo "The file is already in PDF format."
+  $reader "$directory""$file"
 # else check if you already have its pdf version (if not, create it)
 else
-  cd $zadir
-  pdffile="$name"".pdf"
+  pdffile=`echo "$file" | rev | cut -d'.' -f2- | rev`".pdf"
   check=`cksum "$directory""$file" | awk '{print $1}'`
   # if pdf version hasn't ever been created, or it changed, then
   # make conversion and store the checksum.
-  if [[ ( ! -f "$pdffile" ) || ( ! "$check" == `cat cksum/"$file".check` ) ]]; then
-    soffice --convert-to pdf "$directory""$file" --headless
-    echo "$check" > cksum/"$file".check
+  if [[ ( ! -f "$zadir$pdffile" ) || ( ! "$check" == `cat "$zadir"cksum/"$file".check` ) ]]; then
+    soffice --convert-to pdf "$directory""$file" --headless --outdir "$zadir"
+    echo "$check" > "$zadir"cksum/"$file".check
   fi
-  $reader "$pdffile"
+  $reader "$zadir$pdffile"
 fi
