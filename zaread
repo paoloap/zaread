@@ -54,7 +54,12 @@ else
   # if pdf version hasn't ever been created, or it changed, then
   # make conversion and store the checksum.
   if [[ ( ! -f "$zadir$pdffile" ) || ( ! "$check" == `cat "$zadir"cksum/"$file".check` ) ]]; then
-    soffice --convert-to pdf "$directory""$file" --headless --outdir "$zadir"
+    # if it's a mobi file, then convert it to epub (the command depends on calibre)
+    if [[ "$file" =~ ^.*\.mobi$ ]]; then
+      ebook-converter "$directory""$file" "$directory"`echo "$file" | sed 's/mobi$/epub/'`
+    else
+      libreoffice --convert-to pdf "$directory""$file" --headless --outdir "$zadir"
+    fi
     echo "$check" > "$zadir"cksum/"$file".check
   fi
   $reader "$zadir$pdffile"
