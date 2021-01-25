@@ -2,7 +2,7 @@
 ## zaread - a simple script created by paoloap.
 
 # default variables
-zadir="$HOME"'/.zaread/'
+zadir="$HOME"'/.cache/zaread/'
 reader="zathura"
 
 # if ~/.zaread doesn't exist, we create it.
