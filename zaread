@@ -60,7 +60,7 @@ else
       pdffile=`echo "$file" | rev | cut -d'.' -f2- | rev`".epub"
     # convert markdown to pdf using pandoc
     elif [[ "$file" =~ ^.*\.md$ ]]; then
-      pandoc "$directory""$file" -o "$zadir""$pdffile" 
+      md2pdf "$directory""$file" -o "$zadir""$pdffile" 
     else
       libreoffice --convert-to pdf "$directory""$file" --headless --outdir "$zadir"
     fi
