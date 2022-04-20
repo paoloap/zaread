@@ -56,8 +56,11 @@ else
   if [[ ( ! -f "$zadir$pdffile" ) || ( ! "$check" == `cat "$zadir"cksum/"$file".check` ) ]]; then
     # if it's a mobi file, then convert it to epub (the command depends on calibre)
     if [[ "$file" =~ ^.*\.mobi$ ]]; then
-      ebook-convert "$directory""$file" "$zadir"`echo "$file" | sed 's/mobi$/epub/'`
+      ebook-converter "$directory""$file" "$directory"`echo "$file" | sed 's/mobi$/epub/'`
       pdffile=`echo "$file" | rev | cut -d'.' -f2- | rev`".epub"
+    # convert markdown to pdf using pandoc
+    elif [[ "$file" =~ ^.*\.md$ ]]; then
+      pandoc "$directory""$file" -o "$zadir""$pdffile" 
     else
       libreoffice --convert-to pdf "$directory""$file" --headless --outdir "$zadir"
     fi
