@@ -2,12 +2,12 @@
 ## zaread - a simple script created by paoloap.
 
 # default variables
-zadir="$HOME"'/.zaread/'
+zadir="$HOME"'/.cache/zaread/'
 reader="zathura"
 
 # if ~/.zaread doesn't exist, we create it.
 if [[ ! -d "$zadir" ]]; then
-  mkdir "$zadir"
+  mkdir -p "$zadir"
   mkdir "$zadir"cksum
 fi
 
@@ -57,6 +57,7 @@ else
     # if it's a mobi file, then convert it to epub (the command depends on calibre)
     if [[ "$file" =~ ^.*\.mobi$ ]]; then
       ebook-converter "$directory""$file" "$directory"`echo "$file" | sed 's/mobi$/epub/'`
+      pdffile=`echo "$file" | rev | cut -d'.' -f2- | rev`".epub"
     # convert markdown to pdf using pandoc
     elif [[ "$file" =~ ^.*\.md$ ]]; then
       pandoc "$directory""$file" -o "$zadir""$pdffile" 

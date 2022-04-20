@@ -1,5 +1,18 @@
 # zaread
-A (very) lightweight MS Office files reader
+
+#### A (very) lightweight MS Office files reader
+
+### 2022-04-20 2nd UPDATE
+Just merged 3 of the 4 pull requests made in the past few years.
+- Now you can just clone the repo and do "sudo make install"
+- Now the cache directory is ~/.cache/zaread
+- Fix to ebook conversion
+Thanks to iulandita, TheOPtimal and mvrozanti for their help!
+
+### 2022-04-20 UPDATE
+I'm so sorry guys, I just found out today that this script in the past few years has been adopted by many people and even ended up into AUR repos. Not sure that I can manage all requests now, especially because I'm not very skilled on GIT (I know, my bad, I work in a software farm that uses SVN). If someone wants to contribute, i.e. the ones that opened the issues and the pull requests, he's obviously welcome!
+
+## What is zaread?
 
 This simple bash script needs libreoffice installed and has zathura pdf reader as optional dependence
 
@@ -11,10 +24,11 @@ So... I created this trivial script that can be used as default PDF/DOC/DOCX/ODF
 
 Note: If you don't have zathura installed and you want to adopt another PDF reader (which I don't recommend, nothing IMO fits this script better than zathura), please the first time you use the script execute it from terminal, so that you can select your favourite one; otherwise you can just open the script with a text editor and set it as $reader.
 
-## Usage
-1. Clone the repository and `cd` into it
-2. Run `chmod +x zaread` to make it executable as a script
-3. Run `ln -sv $(pwd)/zaread /usr/bin` to make script executable from anywhere (optional)
-4. Run <code>zaread **file**</code> replace **file** with any PDF/DOC/DOCX/ODF/PPT/PPTX/MD file to open it using zathura or any reader that was set as `$reader` in the script file
+## Getting started
+- To make it work you need libreoffice, zathura (or any other PDF reader, but you must setup the proper variable), calibre (for e-book conversion)
+- Clone the repository
+- sudo make install
+
+Aaaand that's it.
 
 Feel free to use and edit :)
