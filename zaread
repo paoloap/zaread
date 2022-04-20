@@ -7,7 +7,7 @@ reader="zathura"
 
 # if ~/.zaread doesn't exist, we create it.
 if [[ ! -d "$zadir" ]]; then
-  mkdir "$zadir"
+  mkdir -p "$zadir"
   mkdir "$zadir"cksum
 fi
 
