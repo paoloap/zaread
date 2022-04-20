@@ -29,6 +29,7 @@ Note: If you don't have zathura installed and you want to adopt another PDF read
 - To make it work you need libreoffice, zathura (or any other PDF reader, but you must setup the proper variable), calibre (for e-book conversion)
 - Clone the repository
 - sudo make install
+
 Aaaand that's it.
 
 Feel free to use and edit :)
