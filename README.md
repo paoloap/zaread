@@ -4,9 +4,8 @@
 
 ## Changelog (2022-04-20)
 
-#### I'm so sorry guys, I just found out today that this script in the past few years has been adopted by many people and even ended up into AUR repos. Not sure that I can manage all requests now, especially because I'm not very skilled on GIT (I know, my bad, I work in a software farm that uses SVN). If someone wants to contribute, i.e. the ones that opened the issues and the pull requests, he's obviously welcome!
+#### I'm so sorry guys, I just found out today that this script in the past few years has been adopted by many people and even ended up into AUR repos.  If someone wants to contribute, i.e. the ones that opened the issues and the pull requests, he's obviously welcome! Btw just merged all the pull requests:
 
-Btw just merged all the pull requests:
 - Now you can just clone the repo and do "sudo make install"
 - Added .md files support (depends on pandoc)
 - Now the cache directory is ~/.cache/zaread
