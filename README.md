@@ -31,6 +31,10 @@ Note: If you don't have zathura installed and you want to adopt another PDF read
 - cd to repository
 - sudo make install
 
+## TODO
+- Create an icon and a .desktop item
+- Implement policies to clean the cache, which can become very big with the time (i.e. delete cache for documents older than x if cache size becomes larger than y)
+
 Aaaand that's it.
 
 Feel free to use and edit :)
