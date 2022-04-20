@@ -14,8 +14,6 @@ Btw just merged all the pull requests:
 
 Thanks to iulandita, TheOPtimal, millenito and mvrozanti for their help!
 
-### 2022-04-20 UPDATE
-
 ## What is zaread?
 
 This simple bash script needs libreoffice installed and has zathura pdf reader as optional dependence
