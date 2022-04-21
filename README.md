@@ -18,7 +18,7 @@
 Thanks to iulandita, TheOPtimal, millenito and mvrozanti for their help!
 
 ## What is zaread?
-zaread is a simple bash scripts that uses zathura pdf/epub viewer to act as a lightweight document/ebook readonly reader
+zaread is a simple bash scripts that uses [zathura pdf/epub viewer](https://pwmt.org/projects/zathura/) to act as a lightweight document/ebook readonly reader
 
 ### How does it work?
 If you are opening a pdf or an epub it doesn't do anything more than launch zathura. If the file is a Microsoft Office document, or a "mobi" ebook, or another supported file, zaread converts it into pdf and put it into a cache. The next time you'll open the file it will take it from the cache. If you edit a document after having opened it with zaread, the next time you will open it zaread will recognize that the file differs from cache and a new converted file will be created.
@@ -40,7 +40,7 @@ If you are opening a pdf or an epub it doesn't do anything more than launch zath
 ### Will it work without any of the optional dependencies?
 Yes, but it will not work with its target file formats
 
-### Can I bind it with another PDF viewer
+### Can I bind it with another PDF viewer?
 Yes, you just have to change $reader variable with your chosen viewer
 
 ### Why you developed zaread?
