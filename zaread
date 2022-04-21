@@ -56,9 +56,9 @@ echo "$directory""$file"
 # then we don't need a converter. But if it's an already converted document, then
 # file position is different: we must distinguish between original and converted files
 file_converter=""
-file_mt=`file --mime-type $directory$file | sed 's/^.*: //'`
-echo $file_mt
-cd $directory
+file_mt=`file --mime-type "$directory$file" | sed 's/^.*: //'`
+echo "$file_mt"
+cd "$directory"
 
 # $pdffile is a string composed this way: __$file.[pdf,epub]
 # if the converted file exists, then it's named like $pdffile
@@ -98,11 +98,11 @@ if [[ -z $file_converter ]]; then
 # if the file a pdf or an epub, we just open it
 elif [[ $file_converter == "none_original" ]]; then
   echo "The file is already in PDF format. We just open it."
-  $reader $directory$file
+  $reader "$directory$file"
 # if we have a converted file, we just open it
 elif [[ $file_converter == "none_converted" ]]; then
   echo "We already converted this file. We just open it."
-  $reader $ZADIR$pdffile
+  $reader "$ZADIR$pdffile"
 # else, then the file is not a pdf or an epub, and it doesn't exist a converted version,
 # but its format is convertible
 else
@@ -115,13 +115,13 @@ else
   # else we process the file, and we put the converted version under $zadir$pdffile
   else
     echo "We are starting to convert the file $file using $file_converter"
-    if [[ $file_converter == $OFFICE_CMD ]]; then
-      libreoffice --convert-to pdf $directory$file --headless --outdir "$ZADIR"
-      tmpfile=`echo $file | sed -r 's/.[^\.]*$//'`".pdf"
-      mv $ZADIR$tmpfile $ZADIR$pdffile
-    elif [[ $file_converter == $MOBI_CMD ]]; then
-      ebook-convert "$directory""$file" $ZADIR$pdffile
-    elif [[ $file_converter == $MD_CMD ]]; then
+    if [[ $file_converter == "$OFFICE_CMD" ]]; then
+      libreoffice --convert-to pdf "$directory$file" --headless --outdir "$ZADIR"
+      tmpfile=`echo "$file" | sed -r 's/.[^\.]*$//'`".pdf"
+      mv "$ZADIR$tmpfile" "$ZADIR$pdffile"
+    elif [[ $file_converter == "$MOBI_CMD" ]]; then
+      ebook-convert "$directory""$file" "$ZADIR$pdffile"
+    elif [[ $file_converter == "$MD_CMD" ]]; then
       md2pdf "$directory""$file" -o "$ZADIR""$pdffile"
     fi
   fi
