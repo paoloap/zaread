@@ -2,25 +2,6 @@
 
 #### A (very) lightweight ebook and Office document reader
 
-
-## Changelog (2022-04-22)
-- Rewriting code I forgot to put some double quote, so if paths had spaces in them it didn't work. THanks to hassty!
-
-## Changelog (2022-04-21)
-- If you alternately opened two files with the same name (and potentially different extension) zaread didn't recognize they were separate files and kept re-converting them. Now the cache file names directly contain their checksum and their size in their name, so that every unique file has its converted version.
-- General code refactoring
-
-## Changelog (2022-04-20)
-
-#### I'm so sorry guys, I just found out today that this script in the past few years has been adopted by many people and even ended up into AUR repos.  If someone wants to contribute, i.e. the ones that opened the issues and the pull requests, he's obviously welcome! Btw just merged all the pull requests:
-
-- Now you can just clone the repo and do "sudo make install"
-- Added .md files support (depends on pandoc)
-- Now the cache directory is ~/.cache/zaread
-- Fixed ebook conversion
-
-Thanks to iulandita, TheOPtimal, millenito and mvrozanti for their help!
-
 ## What is zaread?
 zaread is a simple bash scripts that uses [zathura pdf/epub viewer](https://pwmt.org/projects/zathura/) to act as a lightweight document/ebook readonly reader
 
@@ -47,7 +28,7 @@ Yes, but it will not work with its target file formats
 ### Can I bind it with another PDF viewer?
 Yes, you just have to change $reader variable with your chosen viewer
 
-### Why you developed zaread?
+### Why you did you develop zaread?
 At work I often need to open doc, docx, ppt, pptx files in read only mode. I hate libreoffice interface with all those buttons (useless if I just need to view file content), and I hate presentation mode, because it forces fullscreen mode and I want the freedom to open Office files in a "normal" window, considering that I have a tiling wm.
 
 ## Getting started
@@ -57,6 +38,27 @@ At work I often need to open doc, docx, ppt, pptx files in read only mode. I hat
 - sudo make install
 
 Aaaand that's it.
+
+## Changelog
+#### 2022-04-22
+- Rewriting code I forgot to put some double quote, so if paths had spaces in them it didn't work. Thanks to hassty!
+
+#### 2022-04-21
+- If you alternately opened two files with the same name (and potentially different extension) zaread didn't recognize they were separate files and kept re-converting them. Now the cache file names directly contain their checksum and their size in their name, so that every unique file has its converted version.
+- General code refactoring
+
+#### 2022-04-20
+
+_I'm so sorry guys, I just found out today that this script in the past few years has been adopted by many people and even ended up into AUR repos.  If someone wants to contribute, i.e. the ones that opened the issues and the pull requests, he's obviously welcome! Btw just merged all the pull requests_
+
+- Now you can just clone the repo and do "sudo make install"
+- Added .md files support (depends on pandoc)
+- Now the cache directory is ~/.cache/zaread
+- Fixed ebook conversion
+
+Thanks to iulandita, TheOPtimal, millenito and mvrozanti for their help!
+
+
 
 ## Next goals
 - [ ] Cache auto-cleaning policies
