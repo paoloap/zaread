@@ -2,6 +2,10 @@
 
 #### A (very) lightweight ebook and Office document reader
 
+
+## Changelog (2022-04-22)
+- Rewriting code I forgot to put some double quote, so if paths had spaces in them it didn't work. THanks to hassty!
+
 ## Changelog (2022-04-21)
 - If you alternately opened two files with the same name (and potentially different extension) zaread didn't recognize they were separate files and kept re-converting them. Now the cache file names directly contain their checksum and their size in their name, so that every unique file has its converted version.
 - General code refactoring
