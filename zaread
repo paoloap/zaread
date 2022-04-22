@@ -99,7 +99,8 @@ if [[ -z $file_converter ]]; then
 elif [[ $file_converter == "none_original" ]]; then
   echo "The file is already in PDF format. We just open it."
   $reader "$directory$file"
-# if we have a converted file, we just open it
+# if we have a converted file, we just open it (the only difference with the case above
+# is that the converted file is into cache directory and has a different name)
 elif [[ $file_converter == "none_converted" ]]; then
   echo "We already converted this file. We just open it."
   $reader "$ZADIR$pdffile"
