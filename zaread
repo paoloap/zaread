@@ -3,14 +3,23 @@
 
 # zaread cache path
 ZADIR="$HOME"'/.cache/zaread/'
+ZACONFIG="$HOME/.config/zaread/zareadrc"
+
+
 # reader with which we'll open pdf, epub and converted files
-reader="zathura"
+READER="zathura"
 
 # here we have the execs we use to convert. if you want to use a custom exec,
 # then set it here, and go down in the script to find (and edit) the proper command
 MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
+
+# sources the variables from config file if exists
+if [[ -f "$ZACONFIG" ]]; then
+        . $ZACONFIG
+fi
+
 
 # if $ZADIR doesn't exist, we create it.
 if [[ ! -d "$ZADIR" ]]; then
@@ -25,13 +34,13 @@ if [[ -z $@ ]]; then exit 1; fi
 # after three wrong commands, the script exits 1
 # if the user inserts a command that exists but is not a pdf reader then... then fuck him.
 counter=0
-while [[ -z `command -v "$reader"` ]]; do
+while [[ -z `command -v "$READER"` ]]; do
   if [ $counter -gt 3 ]; then exit 1; fi
   let counter+=1
   echo "Seems that you don't have zathura installed. Please choose an installed PDF reader:"
   read reader
 done
-echo "We'll read PDF with $reader."
+echo "We'll read PDF with $READER."
 
 
 ## create position and file variables ##
@@ -98,12 +107,12 @@ if [[ -z $file_converter ]]; then
 # if the file a pdf or an epub, we just open it
 elif [[ $file_converter == "none_original" ]]; then
   echo "The file is already in PDF format. We just open it."
-  $reader "$directory$file"
+  $READER "$directory$file"
 # if we have a converted file, we just open it (the only difference with the case above
 # is that the converted file is into cache directory and has a different name)
 elif [[ $file_converter == "none_converted" ]]; then
   echo "We already converted this file. We just open it."
-  $reader "$ZADIR$pdffile"
+  $READER "$ZADIR$pdffile"
 # else, then the file is not a pdf or an epub, and it doesn't exist a converted version,
 # but its format is convertible
 else
@@ -128,5 +137,5 @@ else
   fi
   echo "Now we can open the file $ZADIR$pdffile"
   # ...and after the conversion we open the file
-  $reader "$ZADIR$pdffile"
+  $READER "$ZADIR$pdffile"
 fi
