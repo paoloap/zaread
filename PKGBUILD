@@ -2,7 +2,7 @@
 
 _pkgname="zaread"
 pkgname="$_pkgname-git"
-pkgdesc="A (very) lightweight MS Office file reader"
+pkgdesc="A document and ebook reader"
 arch=("any")
 url="https://github.com/paoloap/zaread"
 license=("GPL")
