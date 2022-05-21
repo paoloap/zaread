@@ -1,3 +1,15 @@
+### Note :
+
+I am not the original creator. The credit goes to @[paoloap](https://github.com/paoloap). I just added a few things to improve it.
+
+Changes: 
+
+* POSIX compliant  - thanks [shellcheck](https://github.com/koalaman/shellcheck/)
+* XDG Base directories compliance - for those who like to keep their dotfiles clean
+* Configuration with zareadrc - basically overriding variables in the script, nothing special
+* Reduced messages - logs are only shown when zaread fails
+* nohup support - this is a must, the pdf reader is detached
+
 # zaread
 
 #### A (very) lightweight ebook and Office document reader
