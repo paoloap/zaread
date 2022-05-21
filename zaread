@@ -2,7 +2,6 @@
 
 ## zaread - a simple script created by paoloap.
 
-# TODO: test of XDG_CACHE_HOME and XDG_CONFIG_HOME
 # zaread cache path
 ZA_CACHE_DIR="$XDG_CACHE_HOME"'/zaread/'
 # zaread config path
@@ -46,13 +45,14 @@ while [ -z "$(command -v "$READER")" ]; do
   if [ $counter -gt 3 ]; then exit 1; fi
   counter=$((counter+1))
   echo "Seems that you don't have zathura installed. Please choose an installed PDF reader:"
+  echo "Cannot find zathura in the path. Please provide the path to zathura or the application you want to use as the pdf reader (e.g firefox)"
   read -r READER
-  echo "We'll read PDF with $READER."
-  mkdir -p "$ZA_CONFIG"
+  mkdir -p "$(echo "$ZA_CONFIG" | sed 's/zareadrc//g')"
   echo "READER=$READER" >> "$ZA_CONFIG"
+  echo "Zaread config file created at $ZA_CONFIG"
+  echo "Opening file..."
 done
 
-RUNTIME_LOGS=''
 ## create position and file variables ##
 
 # complete file name (path excluded):
@@ -67,8 +67,7 @@ else
   dir="$(pwd)""/""$(echo "$@" | sed 's|.[^/]*$||')""/"
   directory="$(echo "$dir" | sed 's|//|/|')"
 fi
-RUNTIME_LOGS="$RUNTIME_LOGS""\n$directory""$file"
-
+RUNTIME_LOGS="File Location : $directory""$file"
 # get file type
 
 # if the file is itself a pdf or an epub, or we already have a pdf converted version,
@@ -76,7 +75,7 @@ RUNTIME_LOGS="$RUNTIME_LOGS""\n$directory""$file"
 # file position is different: we must distinguish between original and converted files
 file_converter=""
 file_mt="$(file --mime-type "$directory$file" | sed 's/^.*: //')"
-RUNTIME_LOGS="$RUNTIME_LOGS""$file_mt"
+RUNTIME_LOGS="$RUNTIME_LOGS""\nFile MimeType : $file_mt\n"
 cd "$directory" || return
 
 # $PDF_FILE is a string composed this way: __$file.[pdf,epub]
@@ -107,14 +106,13 @@ then
 elif [ "$file_mt" = "application/octet-stream" ] && expr "$file" : "^.*\.mobi$" 1>/dev/null  ; then
   file_converter="$MOBI_CMD"
 # if the file is a markdown
-elif [ "$file_mt" = "text/plain" ] && expr "$file" : "^.*\.md$" ; then
+elif [ "$file_mt" = "text/plain" ] && expr "$file" : "^.*\.md$" 1> /dev/null ; then
   file_converter="$MD_CMD"
 fi
-
 # if we don't have a capable converter, we exit
 if [ -z "$file_converter" ]; then
-  echo "$RUNTIME_LOGS"
-  echo "The file format is unsupported."
+  printf "$RUNTIME_LOGS"
+  echo "The file format is not supported."
   exit 2
 # if the file a pdf or an epub, we just open it
 elif [ "$file_converter" = "none_original" ]; then
@@ -130,12 +128,12 @@ else
   we_can_convert=$(whereis $file_converter | cut -d":" -f2)
   # if we don't have it, we can't do anything, so we exit
   if [ -z "$we_can_convert" ]; then
-     echo "$RUNTIME_LOGS"
-     echo "The command we need to convert, $file_converter, doesn't exist on this machine."
+     printf "$RUNTIME_LOGS"
+     echo "The application required to convert the file to PDF - $file_converter cannot be found in the path"
      exit 4
   # else we process the file, and we put the converted version under $zadir$pdffile
   else
-    echo "We are starting to convert the file $file using $file_converter"
+    echo "Converting $file to PDF using $file_converter"
     if [ "$file_converter" = "$OFFICE_CMD" ]; then
       libreoffice --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
       tmpfile="$(echo "$file" | sed -r 's/.[^\.]*$//')"".pdf"
@@ -145,6 +143,7 @@ else
     elif [ "$file_converter" = "$MD_CMD" ]; then
       md2pdf "$directory""$file" -o "$ZA_CACHE_DIR""$PDF_FILE"
     fi
+    echo "File converted. Opening now."
     PDF_FILE_PATH="$ZA_CACHE_DIR""$PDF_FILE"
   fi
 fi
