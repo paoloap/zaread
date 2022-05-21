@@ -1,8 +1,10 @@
 #!/bin/sh
+
 ## zaread - a simple script created by paoloap.
 
 # zaread cache path
 ZADIR="$HOME"'/.cache/zaread/'
+ZACONFIG="$HOME/.config/zaread/zareadrc"
 # reader with which we'll open pdf, epub and converted files
 reader="zathura"
 
@@ -11,6 +13,11 @@ reader="zathura"
 MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
+
+# sources the variables from config file if exists
+if [ -f "$ZACONFIG" ]; then
+        . "$ZACONFIG"
+fi
 
 # if $ZADIR doesn't exist, we create it.
 if [ ! -d "$ZADIR" ]; then
