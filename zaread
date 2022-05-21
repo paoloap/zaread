@@ -148,4 +148,4 @@ else
   fi
 fi
 
-nohup "$READER" "$PDF_FILE_PATH" 2>/dev/null &
+nohup "$READER" "$PDF_FILE_PATH" > /dev/null 2>/dev/null &
