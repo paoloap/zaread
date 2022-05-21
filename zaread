@@ -4,9 +4,17 @@
 
 # TODO: test of XDG_CACHE_HOME and XDG_CONFIG_HOME
 # zaread cache path
-ZA_CACHE_DIR="$HOME"'/.cache/zaread/'
+ZA_CACHE_DIR="$XDG_CACHE_HOME"'/zaread/'
 # zaread config path
-ZA_CONFIG="$HOME/.config/zaread/zareadrc"
+ZA_CONFIG="$XDG_CONFIG_HOME"'/zaread/zareadrc'
+
+if [ ! -d "$XDG_CACHE_HOME" ];then
+    ZA_CACHE_DIR="$HOME"'/.cache/zaread/'
+    echo "fuck"
+fi
+if [ ! -d "$XDG_CONFIG_HOME" ];then
+    ZA_CONFIG="$HOME/.config/zaread/zareadrc"
+fi
 
 # reader with which we'll open pdf, epub and converted files
 READER="zathura"
@@ -26,7 +34,6 @@ fi
 # if $ZA_CACHE_DIR doesn't exist, we create it.
 if [ ! -d "$ZA_CACHE_DIR" ]; then
   mkdir -p "$ZA_CACHE_DIR"
-  mkdir "$ZA_CACHE_DIR"cksum
 fi
 
 # if no arguments exit.
@@ -40,8 +47,10 @@ while [ -z "$(command -v "$READER")" ]; do
   if [ $counter -gt 3 ]; then exit 1; fi
   counter=$((counter+1))
   echo "Seems that you don't have zathura installed. Please choose an installed PDF reader:"
-  read -r reader
+  read -r READER
   echo "We'll read PDF with $READER."
+  mkdir -p "$ZA_CONFIG"
+  echo "READER=$READER" >> "$ZA_CONFIG"
 done
 
 RUNTIME_LOGS=''
@@ -71,15 +80,15 @@ file_mt="$(file --mime-type "$directory$file" | sed 's/^.*: //')"
 RUNTIME_LOGS="$RUNTIME_LOGS""$file_mt"
 cd "$directory" || return
 
-# $pdffile is a string composed this way: __$file.[pdf,epub]
-# if the converted file exists, then it's named like $pdffile
-pdffile="$(cksum "$file" | sed -r 's/^([0-9]+) ([0-9]+) (.*)$/\1_\2_\3.pdf/')"
+# $PDF_FILE is a string composed this way: __$file.[pdf,epub]
+# if the converted file exists, then it's named like $PDF_FILE
+PDF_FILE="$(cksum "$file" | sed -r 's/^([0-9]+) ([0-9]+) (.*)$/\1_\2_\3.pdf/')"
 
 # if the file is a pdf or an epub
 if [ "$file_mt" = "application/pdf" ] || [ "$file_mt" = "application/epub+zip" ]; then
   file_converter="none_original"
 # if the converted file exists
-elif [ -f "$ZA_CACHE_DIR$pdffile" ]; then
+elif [ -f "$ZA_CACHE_DIR$PDF_FILE" ]; then
   file_converter="none_converted"
 # if the file is an office file (ooxml or the old format or an opendocument)
 # TODO: make file mimetypes into global arrays
@@ -110,11 +119,11 @@ if [ -z "$file_converter" ]; then
   exit 2
 # if the file a pdf or an epub, we just open it
 elif [ "$file_converter" = "none_original" ]; then
-  $READER "$directory$file" & disown
+  PDF_FILE_PATH="$directory$file" 
 # if we have a converted file, we just open it (the only difference with the case above
 # is that the converted file is into cache directory and has a different name)
 elif [ "$file_converter" = "none_converted" ]; then
-  $READER "$ZA_CACHE_DIR$pdffile" & disown
+  PDF_FILE_PATH="$ZA_CACHE_DIR$PDF_FILE"
 # else, then the file is not a pdf or an epub, and it doesn't exist a converted version,
 # but its format is convertible
 else
@@ -131,13 +140,14 @@ else
     if [ "$file_converter" = "$OFFICE_CMD" ]; then
       libreoffice --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
       tmpfile="$(echo "$file" | sed -r 's/.[^\.]*$//')"".pdf"
-      mv "$ZA_CACHE_DIR$tmpfile" "$ZA_CACHE_DIR$pdffile"
+      mv "$ZA_CACHE_DIR$tmpfile" "$ZA_CACHE_DIR$PDF_FILE"
     elif [ "$file_converter" = "$MOBI_CMD" ]; then
-      ebook-convert "$directory""$file" "$ZA_CACHE_DIR$pdffile"
+      ebook-convert "$directory""$file" "$ZA_CACHE_DIR$PDF_FILE"
     elif [ "$file_converter" = "$MD_CMD" ]; then
-      md2pdf "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
+      md2pdf "$directory""$file" -o "$ZA_CACHE_DIR""$PDF_FILE"
     fi
+    PDF_FILE_PATH="$ZA_CACHE_DIR""$PDF_FILE"
   fi
-  # ...and after the conversion we open the file
-  $READER "$ZA_CACHE_DIR$pdffile" & disown
 fi
+
+nohup "$READER" "$PDF_FILE_PATH" 2>/dev/null &
