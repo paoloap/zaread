@@ -10,7 +10,6 @@ ZA_CONFIG="$XDG_CONFIG_HOME"'/zaread/zareadrc'
 
 if [ ! -d "$XDG_CACHE_HOME" ];then
     ZA_CACHE_DIR="$HOME"'/.cache/zaread/'
-    echo "fuck"
 fi
 if [ ! -d "$XDG_CONFIG_HOME" ];then
     ZA_CONFIG="$HOME/.config/zaread/zareadrc"
