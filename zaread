@@ -2,9 +2,12 @@
 ## zaread - a simple script created by paoloap.
 
 # zaread cache path
-ZADIR="$HOME"'/.cache/zaread/'
-# reader with which we'll open pdf, epub and converted files
-reader="zathura"
+ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME/.cache/"}""/zaread/"
+# zaread config path
+ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}"'/zaread/zareadrc'
+
+# READER with which we'll open pdf, epub and converted files
+READER="zathura"
 
 # here we have the execs we use to convert. if you want to use a custom exec,
 # then set it here, and go down in the script to find (and edit) the proper command
@@ -12,26 +15,34 @@ MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
 
-# if $ZADIR doesn't exist, we create it.
-if [ ! -d "$ZADIR" ]; then
-  mkdir -p "$ZADIR"
-  mkdir "$ZADIR"cksum
+# sources the variables from config file if exists
+if [ -f "$ZA_CONFIG" ]; then
+        . "$ZA_CONFIG"
+fi
+
+# if $ZA_CACHE_DIR doesn't exist, we create it.
+if [[ ! -d "$ZA_CACHE_DIR" ]]; then
+  mkdir -p "$ZA_CACHE_DIR"
 fi
 
 # if no arguments exit.
 if [ -z "$*" ]; then exit 1; fi
 
-# if zathura is not installed, we force the user to choose a pdf reader
+# if zathura is not installed, we force the user to choose a pdf READER
 # after three wrong commands, the script exits 1
-# if the user inserts a command that exists but is not a pdf reader then... then fuck him.
+# if the user inserts a command that exists but is not a pdf READER then... then fuck him.
 counter=0
-while [ -z "$(command -v "$reader")" ]; do
+while [[ -z `command -v "$READER"` ]]; do
   if [ $counter -gt 3 ]; then exit 1; fi
-  counter=$((counter+1))
-  echo "Seems that you don't have zathura installed. Please choose an installed PDF reader:"
-  read -r reader
+  let counter+=1
+  echo "Seems that you don't have zathura installed. Please choose an installed PDF READER:"
+  echo "Cannot find zathura in the path. Please provide the path to zathura or the application you want to use as the pdf READER (e.g firefox)"
+  read -r READER
+  mkdir -p "$(echo "$ZA_CONFIG" | sed 's/zareadrc//g')"
+  echo "READER=$READER" >> "$ZA_CONFIG"
+  echo "Zaread config file created at $ZA_CONFIG"
+  echo "Opening file..."
 done
-echo "We'll read PDF with $reader."
 
 
 ## create position and file variables ##
@@ -68,7 +79,7 @@ pdffile="$(cksum "$file" | sed -r 's/^([0-9]+) ([0-9]+) (.*)$/\1_\2_\3.pdf/')"
 if [ "$file_mt" = "application/pdf" ] || [ "$file_mt" = "application/epub+zip" ]; then
   file_converter="none_original"
 # if the converted file exists
-elif [ -f "$ZADIR$pdffile" ]; then
+elif [[ ( -f "$ZA_CACHE_DIR$pdffile" ) ]]; then
   file_converter="none_converted"
 # if the file is an office file (ooxml or the old format or an opendocument)
 elif [ "$file_mt" = "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ] || \
@@ -98,12 +109,12 @@ if [ -z "$file_converter" ]; then
 # if the file a pdf or an epub, we just open it
 elif [ "$file_converter" = "none_original" ]; then
   echo "The file is already in PDF format. We just open it."
-  $reader "$directory$file"
+  $READER "$directory$file"
 # if we have a converted file, we just open it (the only difference with the case above
 # is that the converted file is into cache directory and has a different name)
 elif [ "$file_converter" = "none_converted" ]; then
   echo "We already converted this file. We just open it."
-  $reader "$ZADIR$pdffile"
+  $READER "$ZA_CACHE_DIR$pdffile"
 # else, then the file is not a pdf or an epub, and it doesn't exist a converted version,
 # but its format is convertible
 else
@@ -116,17 +127,17 @@ else
   # else we process the file, and we put the converted version under $zadir$pdffile
   else
     echo "We are starting to convert the file $file using $file_converter"
-    if [ "$file_converter" = "$OFFICE_CMD" ]; then
-      libreoffice --convert-to pdf "$directory$file" --headless --outdir "$ZADIR"
-      tmpfile="$(echo "$file" | sed -r 's/.[^\.]*$//')"".pdf"
-      mv "$ZADIR$tmpfile" "$ZADIR$pdffile"
-    elif [ "$file_converter" = "$MOBI_CMD" ]; then
-      ebook-convert "$directory""$file" "$ZADIR$pdffile"
-    elif [ "$file_converter" = "$MD_CMD" ]; then
-      md2pdf "$directory""$file" -o "$ZADIR""$pdffile"
+    if [[ $file_converter == "$OFFICE_CMD" ]]; then
+      libreoffice --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
+      tmpfile=`echo "$file" | sed -r 's/.[^\.]*$//'`".pdf"
+      mv "$ZA_CACHE_DIR$tmpfile" "$ZA_CACHE_DIR$pdffile"
+    elif [[ $file_converter == "$MOBI_CMD" ]]; then
+      ebook-convert "$directory""$file" "$ZA_CACHE_DIR$pdffile"
+    elif [[ $file_converter == "$MD_CMD" ]]; then
+      md2pdf "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
     fi
   fi
-  echo "Now we can open the file $ZADIR$pdffile"
+  echo "Now we can open the file $ZA_CACHE_DIR$pdffile"
   # ...and after the conversion we open the file
-  $reader "$ZADIR$pdffile"
+  $READER "$ZA_CACHE_DIR$pdffile"
 fi
