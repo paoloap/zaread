@@ -128,13 +128,13 @@ else
   else
     echo "We are starting to convert the file $file using $file_converter"
     if [[ $file_converter == "$OFFICE_CMD" ]]; then
-      libreoffice --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
+      "$OFFICE_CMD" --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
       tmpfile=`echo "$file" | sed -r 's/.[^\.]*$//'`".pdf"
       mv "$ZA_CACHE_DIR$tmpfile" "$ZA_CACHE_DIR$pdffile"
     elif [[ $file_converter == "$MOBI_CMD" ]]; then
-      ebook-convert "$directory""$file" "$ZA_CACHE_DIR$pdffile"
+      "$MOBI_CMD" "$directory""$file" "$ZA_CACHE_DIR$pdffile"
     elif [[ $file_converter == "$MD_CMD" ]]; then
-      md2pdf "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
+      "$MD_CMD"  "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
     fi
   fi
   echo "Now we can open the file $ZA_CACHE_DIR$pdffile"
