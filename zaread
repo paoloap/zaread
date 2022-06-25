@@ -2,9 +2,9 @@
 ## zaread - a simple script created by paoloap.
 
 # zaread cache path
-ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME/.cache/"}""/zaread/"
+ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME/.cache/"}/zaread/"
 # zaread config path
-ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}"'/zaread/zareadrc'
+ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}/zaread/zareadrc"
 
 # READER with which we'll open pdf, epub and converted files
 READER="zathura"
@@ -17,13 +17,11 @@ MD_CMD="md2pdf"
 
 # sources the variables from config file if exists
 if [ -f "$ZA_CONFIG" ]; then
-        . "$ZA_CONFIG"
+  . "$ZA_CONFIG"
 fi
 
 # if $ZA_CACHE_DIR doesn't exist, we create it.
-if [[ ! -d "$ZA_CACHE_DIR" ]]; then
-  mkdir -p "$ZA_CACHE_DIR"
-fi
+mkdir -p "$ZA_CACHE_DIR"
 
 # if no arguments exit.
 if [ -z "$*" ]; then exit 1; fi
@@ -32,13 +30,13 @@ if [ -z "$*" ]; then exit 1; fi
 # after three wrong commands, the script exits 1
 # if the user inserts a command that exists but is not a pdf READER then... then fuck him.
 counter=0
-while [[ -z `command -v "$READER"` ]]; do
+while [[ -z $(command -v "$READER") ]]; do
   if [ $counter -gt 3 ]; then exit 1; fi
-  let counter+=1
+  (( counter+=1 ))
   echo "Seems that you don't have zathura installed. Please choose an installed PDF READER:"
   echo "Cannot find zathura in the path. Please provide the path to zathura or the application you want to use as the pdf READER (e.g firefox)"
   read -r READER
-  mkdir -p "$(echo "$ZA_CONFIG" | sed 's/zareadrc//g')"
+  mkdir -p "${ZA_CONFIG/zareadrc/}"
   echo "READER=$READER" >> "$ZA_CONFIG"
   echo "Zaread config file created at $ZA_CONFIG"
   echo "Opening file..."
@@ -48,18 +46,17 @@ done
 ## create position and file variables ##
 
 # complete file name (path excluded):
-file="$(echo "$@" | rev | cut -d'/' -f1 | rev)"
+file=$(basename "$@")
 
 # complete directory path:
 # if it has been inserted absolute path ($@ starts with '/')
 if expr "$*" : "^/" 1> /dev/null ; then
-    directory=$(echo "$@" | rev | cut -d'/' -f2- | rev)"/"
-# else (relative path inserted)
-else
-  dir="$(pwd)""/""$(echo "$@" | sed 's|.[^/]*$||')""/"
+  directory=$(echo "$@" | rev | cut -d'/' -f2- | rev)"/"
+else # (relative path inserted)
+  dir="$(pwd)/$(echo "$@" | sed 's|.[^/]*$||')/"
   directory="$(echo "$dir" | sed 's|//|/|')"
 fi
-echo "$directory""$file"
+echo "$directory$file"
 
 # get file type
 
@@ -83,15 +80,15 @@ elif [[ ( -f "$ZA_CACHE_DIR$pdffile" ) ]]; then
   file_converter="none_converted"
 # if the file is an office file (ooxml or the old format or an opendocument)
 elif [ "$file_mt" = "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ] || \
-     [ "$file_mt" = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ] || \
-     [ "$file_mt" = "application/vnd.openxmlformats-officedocument.presentationml.presentation" ] || \
-     [ "$file_mt" = "application/msword" ] || \
-     [ "$file_mt" = "application/vnd.ms-excel" ] || \
-     [ "$file_mt" = "application/vnd.ms-powerpoint" ] || \
-     [ "$file_mt" = "application/vnd.oasis.opendocument.text" ] || \
-     [ "$file_mt" = "application/vnd.oasis.opendocument.spreadsheet" ] || \
-     [ "$file_mt" = "application/vnd.oasis.opendocument.presentation" ] || \
-     [ "$file_mt" = "text/csv" ]
+  [ "$file_mt" = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ] || \
+  [ "$file_mt" = "application/vnd.openxmlformats-officedocument.presentationml.presentation" ] || \
+  [ "$file_mt" = "application/msword" ] || \
+  [ "$file_mt" = "application/vnd.ms-excel" ] || \
+  [ "$file_mt" = "application/vnd.ms-powerpoint" ] || \
+  [ "$file_mt" = "application/vnd.oasis.opendocument.text" ] || \
+  [ "$file_mt" = "application/vnd.oasis.opendocument.spreadsheet" ] || \
+  [ "$file_mt" = "application/vnd.oasis.opendocument.presentation" ] || \
+  [ "$file_mt" = "text/csv" ]
 then
   file_converter="$OFFICE_CMD"
 # if the file is a mubi ebook
@@ -122,14 +119,14 @@ else
   we_can_convert=$(whereis $file_converter | cut -d":" -f2)
   # if we don't have it, we can't do anything, so we exit
   if [ -z "$we_can_convert" ]; then
-     echo "The command we need to convert, $file_converter, doesn't exist on this machine."
-     exit 4
+    echo "The command we need to convert, $file_converter, doesn't exist on this machine."
+    exit 4
   # else we process the file, and we put the converted version under $zadir$pdffile
   else
     echo "We are starting to convert the file $file using $file_converter"
     if [[ $file_converter == "$OFFICE_CMD" ]]; then
       libreoffice --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
-      tmpfile=`echo "$file" | sed -r 's/.[^\.]*$//'`".pdf"
+      tmpfile="$(echo "$file" | sed -r 's/.[^\.]*$//').pdf"
       mv "$ZA_CACHE_DIR$tmpfile" "$ZA_CACHE_DIR$pdffile"
     elif [[ $file_converter == "$MOBI_CMD" ]]; then
       ebook-convert "$directory""$file" "$ZA_CACHE_DIR$pdffile"
