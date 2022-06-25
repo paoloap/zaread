@@ -33,9 +33,9 @@ At work I often need to open doc, docx, ppt, pptx files in read only mode. I hat
 
 ## Getting started
 - Install zathura (and libreoffice, calibre and md2pdf as optional dependencies)
-- git clone https://github.com/paoloap/zaread
-- cd zathura
-- sudo make install
+- `git clone https://github.com/paoloap/zaread`
+- `cd zaread`
+- `sudo make install`
 
 Aaaand that's it.
 
