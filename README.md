@@ -16,6 +16,7 @@ If you are opening a pdf or an epub it doesn't do anything more than launch zath
 - MOBI
 - CSV
 - Markdown (md)
+- RTF
 
 ### Some optional dependencies are quite big...
 - Unfortunately, we can't have libreoffice command line tools without getting the whole suite, and I don't know any other options to convert Office files on Linux...
@@ -62,6 +63,6 @@ Thanks to iulandita, TheOPtimal, millenito and mvrozanti for their help!
 
 ## Next goals
 - [ ] Cache auto-cleaning policies
-- [ ] Add more extensions support (xlsb, xlsm, rtf...)
+- [ ] Add more extensions support (xlsb, xlsm...)
 
 Feel free to use and edit :)
