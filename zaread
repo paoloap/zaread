@@ -33,6 +33,13 @@ if [ "$#" != 1 ]; then
 	exit 1
 fi
 
+path="$1"
+
+if [ ! -f "$path" ]; then
+	echo "File doesn't exist."
+	exit 1
+fi
+
 # If set reader isn't in the $PATH, we force the user to choose a pdf reader
 # after three wrong commands, the script exits.
 # If the user inserts a command that exists but is not a pdf READER then... then fuck her/him.
