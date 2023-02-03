@@ -172,6 +172,28 @@ case "$file_converter" in
 		case "$file_converter" in
 		"$OFFICE_CMD")
 			"$OFFICE_CMD" --convert-to pdf "$directory/$file" --outdir "$ZA_CACHE_DIR"
+			# We need to handle cases where file starts with a . and
+			# that's the only one . in filename, i.e. filename hasn't
+			# got extension
+			case "$file" in
+			.*.*)
+				# If it has one more . after the first character
+				# which is a ., we'll consider that as an
+				# extension, so we can use parameter expansion,
+				# and we need this case for the next one to work.
+				tmpfile="${file%.*}.pdf"
+				;;
+			.*)
+				# If this case was the first it would also match cases with 2 .'s in the filename.
+				# If the filename starts with a . and it hasn't got an
+				# extension, we just add .pdf to the filename to get
+				# tmpfilename
+				tmpfile="$file.pdf"
+				;;
+			*)
+				# In the rest of cases we can use parameter expansion
+				tmpfile="${file%.*}.pdf"
+				;;
 			esac
 			mv "$ZA_CACHE_DIR/$tmpfile" "$ZA_CACHE_DIR/$pdffile"
 			;;
