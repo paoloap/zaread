@@ -155,9 +155,15 @@ case "$file_converter" in
 	;;
 "none_original")
 	echo "The file is already in PDF format. We just open it."
+	"$READER" "$directory/$file"
 	;;
 "none_converted")
 	echo "We already converted this file. We just open it."
+	"$READER" "$ZA_CACHE_DIR/$pdffile"
 	;;
 *)
+	echo "Now we can open the file $ZA_CACHE_DIR/$pdffile"
+	# ...and after the conversion we open the file
+	"$READER" "$ZA_CACHE_DIR/$pdffile"
+	;;
 esac
