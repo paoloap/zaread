@@ -6,14 +6,14 @@ ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME"/.cache}/zaread"
 # zaread config path
 ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME"/.config}/zaread/zareadrc"
 
-# READER with which we'll open pdf, epub and converted files
+# Default reader, i.e. command, which script uses to open pdf, epub and converted files
 READER="zathura"
-
-# here we have the execs we use to convert. if you want to use a custom exec,
-# then set it here, and go down in the script to find (and edit) the proper command
+# Defaults converters, i.e. commands, which script uses to convert files to pdf
 MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
+# If you want to use other commands set these vars in $ZA_CONFIG. Some cli
+# arguments are hardcoded so some commands won't work. Check that first.
 
 # sources the variables from config file if exists
 if [ -f "$ZA_CONFIG" ]; then
