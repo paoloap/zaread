@@ -15,10 +15,9 @@ MD_CMD="md2pdf"
 # If you want to use other commands set these vars in $ZA_CONFIG. Some cli
 # arguments are hardcoded so some commands won't work. Check that first.
 
-# sources the variables from config file if exists
-if [ -f "$ZA_CONFIG" ]; then
-        . "$ZA_CONFIG"
-fi
+# Sources the variables from config file if exists
+# shellcheck disable=1090
+[ -f "$ZA_CONFIG" ] && . "$ZA_CONFIG"
 
 # if $ZA_CACHE_DIR doesn't exist, we create it.
 if [[ ! -d "$ZA_CACHE_DIR" ]]; then
