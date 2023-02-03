@@ -128,7 +128,8 @@ else
 		# opendocument) we convert it using $OFFICE_CMD.
 		file_converter="$OFFICE_CMD"
 		;;
-	"application/octet-stream")
+	"application/octet-stream" | \
+	"application/x-mobipocket-ebook")
 
 		case "$file" in
 		*.mobi)
