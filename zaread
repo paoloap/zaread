@@ -33,22 +33,29 @@ if [ "$#" != 1 ]; then
 	exit 1
 fi
 
-# if zathura is not installed, we force the user to choose a pdf READER
-# after three wrong commands, the script exits 1
-# if the user inserts a command that exists but is not a pdf READER then... then fuck him.
-counter=0
-while [[ -z `command -v "$READER"` ]]; do
-  if [ $counter -gt 3 ]; then exit 1; fi
-  let counter+=1
-  echo "Seems that you don't have zathura installed. Please choose an installed PDF READER:"
-  echo "Cannot find zathura in the path. Please provide the path to zathura or the application you want to use as the pdf READER (e.g firefox)"
-  read -r READER
-  mkdir -p "$(echo "$ZA_CONFIG" | sed 's/zareadrc//g')"
-  echo "READER=$READER" >> "$ZA_CONFIG"
-  echo "Zaread config file created at $ZA_CONFIG"
-  echo "Opening file..."
+# If set reader isn't in the $PATH, we force the user to choose a pdf reader
+# after three wrong commands, the script exits.
+# If the user inserts a command that exists but is not a pdf READER then... then fuck her/him.
+counter=1
+while ! command -v "$READER" >/dev/null; do
+	if [ "$counter" -gt 3 ]; then
+		echo "'$READER' not in the \$PATH"
+		exit 1
+	fi
+
+	echo "Set \$READER='$READER' command is not in the \$PATH. Close script, set right command in $ZA_CONFIG and start again or enter valid reader command. ($counter/3)"
+
+	echo "Enter new reader command which will be added to $ZA_CONFIG:"
+	read -r READER
+	# Not sure if this check is needed
+	[ ! -d "$ZA_CONFIG" ] && mkdir -p "$(dirname "$ZA_CONFIG")"
+	sed -i '/^[[:space:]]*READER=/d' "$ZA_CONFIG"
+	echo "READER=$READER" >>"$ZA_CONFIG"
+	echo "READER=$READER appended to $ZA_CONFIG"
+	counter=$((counter + 1))
 done
 
+echo "\$READER='$READER' is valid. Starting script..."
 
 ## create position and file variables ##
 
