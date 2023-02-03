@@ -2,9 +2,9 @@
 ## zaread - a simple script created by paoloap.
 
 # zaread cache path
-ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME/.cache/"}""/zaread/"
+ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME"/.cache}/zaread"
 # zaread config path
-ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}"'/zaread/zareadrc'
+ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME"/.config}/zaread/zareadrc"
 
 # READER with which we'll open pdf, epub and converted files
 READER="zathura"
