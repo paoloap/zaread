@@ -67,18 +67,23 @@ echo "\$READER='$READER' is valid. Starting script..."
 ## create position and file variables ##
 
 # complete file name (path excluded):
-file="$(echo "$@" | rev | cut -d'/' -f1 | rev)"
-
+file="$(basename "$path")"
+echo "Filename: $file"
+case "$path" in
 # complete directory path:
-# if it has been inserted absolute path ($@ starts with '/')
-if expr "$*" : "^/" 1> /dev/null ; then
-    directory=$(echo "$@" | rev | cut -d'/' -f2- | rev)"/"
+# if it has been inserted absolute path ($path starts with '/')
+/*)
+	directory="$(dirname "$path")"
+	;;
 # else (relative path inserted)
-else
-  dir="$(pwd)""/""$(echo "$@" | sed 's|.[^/]*$||')""/"
-  directory="$(echo "$dir" | sed 's|//|/|')"
-fi
-echo "$directory""$file"
+*)
+	directory="${PWD}/$(dirname "$path")"
+	# directory="$(echo "$dir" | tr -s '/')"
+	;;
+esac
+
+echo "Directory: $directory"
+echo "Path: $directory/$file"
 
 # get file type
 
