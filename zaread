@@ -94,6 +94,11 @@ file_mt="$(file --mime-type "$directory/$file")"
 file_mt="${file_mt#*: }"
 echo "Mime type: $file_mt"
 
+cd "$directory" || {
+	echo "Couldn't cd into $directory"
+	exit 1
+}
+
 # if the converted file exists, then it's named like $pdffile
 pdffile="$(cksum "$file" | sed -r 's/^([0-9]+) ([0-9]+) (.*)$/\1_\2_\3.pdf/')"
 
