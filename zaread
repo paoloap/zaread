@@ -148,3 +148,16 @@ else
 	esac
 fi
 
+case "$file_converter" in
+"")
+	echo "The file format is unsupported."
+	exit 2
+	;;
+"none_original")
+	echo "The file is already in PDF format. We just open it."
+	;;
+"none_converted")
+	echo "We already converted this file. We just open it."
+	;;
+*)
+esac
