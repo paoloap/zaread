@@ -22,10 +22,16 @@ MD_CMD="md2pdf"
 # if $ZA_CACHE_DIR doesn't exist, we create it.
 [ ! -d "$ZA_CACHE_DIR" ] && mkdir -p "$ZA_CACHE_DIR"
 
+# Exit if called without arguments
+if [ "$#" = 0 ]; then
+	echo "No files to open."
+	exit
 fi
 
-# if no arguments exit.
-if [ -z "$*" ]; then exit 1; fi
+if [ "$#" != 1 ]; then
+	echo "More than one filename given. Closing."
+	exit 1
+fi
 
 # if zathura is not installed, we force the user to choose a pdf READER
 # after three wrong commands, the script exits 1
