@@ -20,8 +20,8 @@ MD_CMD="md2pdf"
 [ -f "$ZA_CONFIG" ] && . "$ZA_CONFIG"
 
 # if $ZA_CACHE_DIR doesn't exist, we create it.
-if [[ ! -d "$ZA_CACHE_DIR" ]]; then
-  mkdir -p "$ZA_CACHE_DIR"
+[ ! -d "$ZA_CACHE_DIR" ] && mkdir -p "$ZA_CACHE_DIR"
+
 fi
 
 # if no arguments exit.
