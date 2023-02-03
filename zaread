@@ -90,12 +90,10 @@ echo "Path: $directory/$file"
 # if the file is itself a pdf or an epub, or we already have a pdf converted version,
 # then we don't need a converter. But if it's an already converted document, then
 # file position is different: we must distinguish between original and converted files
-file_converter=""
-file_mt="$(file --mime-type "$directory$file" | sed 's/^.*: //')"
-echo "$file_mt"
-cd "$directory" || return
+file_mt="$(file --mime-type "$directory/$file")"
+file_mt="${file_mt#*: }"
+echo "Mime type: $file_mt"
 
-# $pdffile is a string composed this way: __$file.[pdf,epub]
 # if the converted file exists, then it's named like $pdffile
 pdffile="$(cksum "$file" | sed -r 's/^([0-9]+) ([0-9]+) (.*)$/\1_\2_\3.pdf/')"
 
