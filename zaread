@@ -162,14 +162,30 @@ case "$file_converter" in
 	"$READER" "$ZA_CACHE_DIR/$pdffile"
 	;;
 *)
+	# So the file is not a pdf or an epub, and a converted version
+	# doesn't exist, but its format may be converted
+	if command -v "$file_converter" >/dev/null; then
+		echo "We are starting to convert the file \"$file\" using $file_converter"
+		# If converter tools are changed in $ZA_CONFIG check calling
+		# commands bellow. They may need to be called with different
+		# arguments and format.
+		case "$file_converter" in
 		"$OFFICE_CMD")
 			"$OFFICE_CMD" --convert-to pdf "$directory/$file" --outdir "$ZA_CACHE_DIR"
+			esac
+			mv "$ZA_CACHE_DIR/$tmpfile" "$ZA_CACHE_DIR/$pdffile"
+			;;
 		"$MOBI_CMD")
 			"$MOBI_CMD" "$directory/$file" "$ZA_CACHE_DIR/$pdffile"
+			;;
 		"$MD_CMD")
 			"$MD_CMD" "$directory/$file" -o "$ZA_CACHE_DIR/$pdffile"
 			;;
 		esac
+	else
+		echo "The command we need to convert '$file_converter' is not in \$PATH."
+		exit 4
+	fi
 	echo "Now we can open the file $ZA_CACHE_DIR/$pdffile"
 	# ...and after the conversion we open the file
 	"$READER" "$ZA_CACHE_DIR/$pdffile"
