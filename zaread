@@ -132,7 +132,7 @@ else
 		file_converter="$OFFICE_CMD"
 		;;
 	"application/octet-stream" | \
-	"application/x-mobipocket-ebook")
+		"application/x-mobipocket-ebook")
 
 		case "$file" in
 		*.mobi)
