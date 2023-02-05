@@ -160,11 +160,11 @@ case "$file_converter" in
 	;;
 "none_original")
 	echo "The file is already in PDF format. We just open it."
-	"$READER" "$directory/$file"
+	eval "$READER" "$directory/$file"
 	;;
 "none_converted")
 	echo "We already converted this file. We just open it."
-	"$READER" "$ZA_CACHE_DIR/$pdffile"
+	eval "$READER" "$ZA_CACHE_DIR/$pdffile"
 	;;
 *)
 	# So the file is not a pdf or an epub, and a converted version
@@ -176,7 +176,7 @@ case "$file_converter" in
 		# arguments and format.
 		case "$file_converter" in
 		"$OFFICE_CMD")
-			"$OFFICE_CMD" --convert-to pdf "$directory/$file" --outdir "$ZA_CACHE_DIR"
+			eval "$OFFICE_CMD" "$OFFICE_ARG" --convert-to pdf "$directory/$file" --outdir "$ZA_CACHE_DIR"
 			# We need to handle cases where file starts with a . and
 			# that's the only one . in filename, i.e. filename hasn't
 			# got extension
@@ -203,10 +203,10 @@ case "$file_converter" in
 			mv "$ZA_CACHE_DIR/$tmpfile" "$ZA_CACHE_DIR/$pdffile"
 			;;
 		"$MOBI_CMD")
-			"$MOBI_CMD" "$directory/$file" "$ZA_CACHE_DIR/$pdffile"
+			eval "$MOBI_CMD" "$MOBI_ARG" "$directory/$file" "$ZA_CACHE_DIR/$pdffile"
 			;;
 		"$MD_CMD")
-			"$MD_CMD" "$directory/$file" -o "$ZA_CACHE_DIR/$pdffile"
+			eval "$MD_CMD" "$MD_ARG" "$directory/$file" -o "$ZA_CACHE_DIR/$pdffile"
 			;;
 		esac
 	else
@@ -215,6 +215,6 @@ case "$file_converter" in
 	fi
 	echo "Now we can open the file $ZA_CACHE_DIR/$pdffile"
 	# ...and after the conversion we open the file
-	"$READER" "$ZA_CACHE_DIR/$pdffile"
+	eval "$READER" "$ZA_CACHE_DIR/$pdffile"
 	;;
 esac
