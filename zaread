@@ -141,7 +141,6 @@ else
 			;;
 		esac
 		;;
-	"text/plain")
 	"text/plain" | \
 		"text/x-c")
 		case "$file" in
