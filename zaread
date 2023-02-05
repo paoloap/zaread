@@ -12,6 +12,9 @@ READER="zathura"
 MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
+MD_ARG=""
+MOBI_ARG=""
+OFFICE_ARG=""
 # If you want to use other commands set these vars in $ZA_CONFIG. Some cli
 # arguments are hardcoded so some commands won't work. Check that first.
 
