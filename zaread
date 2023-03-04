@@ -176,7 +176,7 @@ case "$file_converter" in
 		# arguments and format.
 		case "$file_converter" in
 		"$OFFICE_CMD")
-			eval "$OFFICE_CMD" "$OFFICE_ARG" --convert-to pdf "$directory/$file" --outdir "$ZA_CACHE_DIR"
+			eval "$OFFICE_CMD" "$OFFICE_ARG" --convert-to pdf \""$directory/$file"\" --outdir \""$ZA_CACHE_DIR"\"
 			# We need to handle cases where file starts with a . and
 			# that's the only one . in filename, i.e. filename hasn't
 			# got extension
