@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 ## zaread - a simple script created by paoloap.
 
 # zaread cache path
