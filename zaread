@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 ## zaread - a simple script created by paoloap.
 
 # zaread cache path
-ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME/.cache/"}""/zaread/"
+ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME/.cache/"}""zaread/"
 # zaread config path
 ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}"'/zaread/zareadrc'
 
@@ -134,7 +134,7 @@ else
     elif [[ $file_converter == "$MOBI_CMD" ]]; then
       ebook-convert "$directory""$file" "$ZA_CACHE_DIR$pdffile"
     elif [[ $file_converter == "$MD_CMD" ]]; then
-      md2pdf "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
+      md2pdf "$directory""$file" "$ZA_CACHE_DIR""$pdffile"
     fi
   fi
   echo "Now we can open the file $ZA_CACHE_DIR$pdffile"
