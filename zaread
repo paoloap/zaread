@@ -59,7 +59,7 @@ else
   dir="$(pwd)""/""$(echo "$@" | sed 's|.[^/]*$||')""/"
   directory="$(echo "$dir" | sed 's|//|/|')"
 fi
-echo "$directory""$file"
+RUNTIME_LOGS="File Location : $directory$file"
 
 # get file type
 
@@ -68,7 +68,7 @@ echo "$directory""$file"
 # file position is different: we must distinguish between original and converted files
 file_converter=""
 file_mt="$(file --mime-type "$directory$file" | sed 's/^.*: //')"
-echo "$file_mt"
+RUNTIME_LOGS="$RUNTIME_LOGS""\nFile MimeType : $file_mt\n"
 cd "$directory" || return
 
 # $pdffile is a string composed this way: __$file.[pdf,epub]
@@ -103,17 +103,17 @@ elif [ "$file_mt" = "text/plain" ] && expr "$file" : "^.*\.md$" ; then
 fi
 
 # if we don't have a capable converter, we exit
+
 if [ -z "$file_converter" ]; then
+  printf "$RUNTIME_LOGS"
   echo "The file format is unsupported."
   exit 2
 # if the file a pdf or an epub, we just open it
 elif [ "$file_converter" = "none_original" ]; then
-  echo "The file is already in PDF format. We just open it."
   $READER "$directory$file"
 # if we have a converted file, we just open it (the only difference with the case above
 # is that the converted file is into cache directory and has a different name)
 elif [ "$file_converter" = "none_converted" ]; then
-  echo "We already converted this file. We just open it."
   $READER "$ZA_CACHE_DIR$pdffile"
 # else, then the file is not a pdf or an epub, and it doesn't exist a converted version,
 # but its format is convertible
@@ -122,7 +122,8 @@ else
   we_can_convert=$(whereis $file_converter | cut -d":" -f2)
   # if we don't have it, we can't do anything, so we exit
   if [ -z "$we_can_convert" ]; then
-     echo "The command we need to convert, $file_converter, doesn't exist on this machine."
+     printf "$RUNTIME_LOGS"
+     echo "The application required to convert the file to PDF - $file_converter cannot be found in the path"
      exit 4
   # else we process the file, and we put the converted version under $zadir$pdffile
   else
@@ -137,7 +138,6 @@ else
       md2pdf "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
     fi
   fi
-  echo "Now we can open the file $ZA_CACHE_DIR$pdffile"
   # ...and after the conversion we open the file
   $READER "$ZA_CACHE_DIR$pdffile"
 fi
