@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=zaread
+Type=Application
+Exec=zaread %U
+Icon=org.pwmt.zathura
+Terminal=false
+Categories=Office;Viewer;
