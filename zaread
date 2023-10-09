@@ -91,7 +91,7 @@ elif [ "$file_mt" = "application/vnd.openxmlformats-officedocument.wordprocessin
      [ "$file_mt" = "application/vnd.oasis.opendocument.spreadsheet" ] || \
      [ "$file_mt" = "application/vnd.oasis.opendocument.presentation" ] || \
      [ "$file_mt" = "text/csv" ] || \
-     [ "$file_mt" = "text/rtf"]
+     [ "$file_mt" = "text/rtf" ]
 then
   file_converter="$OFFICE_CMD"
 # if the file is a mubi ebook
