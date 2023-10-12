@@ -110,11 +110,13 @@ if [ -z "$file_converter" ]; then
   exit 2
 # if the file a pdf or an epub, we just open it
 elif [ "$file_converter" = "none_original" ]; then
-  $READER "$directory$file"
+  echo "The file is already in PDF format. We just open it."
+  PDF_FILE_PATH="$directory$file"
 # if we have a converted file, we just open it (the only difference with the case above
 # is that the converted file is into cache directory and has a different name)
 elif [ "$file_converter" = "none_converted" ]; then
-  $READER "$ZA_CACHE_DIR$pdffile"
+  echo "We already converted this file. We just open it."
+  PDF_FILE_PATH="$ZA_CACHE_DIR$pdffile"
 # else, then the file is not a pdf or an epub, and it doesn't exist a converted version,
 # but its format is convertible
 else
@@ -139,5 +141,8 @@ else
     fi
   fi
   # ...and after the conversion we open the file
-  $READER "$ZA_CACHE_DIR$pdffile"
+  PDF_FILE_PATH="$ZA_CACHE_DIR$pdffile"
+
 fi
+
+nohup "$reader" "$PDF_FILE_PATH" > /dev/null 2>/dev/null &
