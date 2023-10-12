@@ -114,7 +114,7 @@ elif [ "$file_converter" = "none_original" ]; then
 # is that the converted file is into cache directory and has a different name)
 elif [ "$file_converter" = "none_converted" ]; then
   echo "We already converted this file. We just open it."
-  PDF_FILE_PATH="$ZADIR$pdffile"
+  PDF_FILE_PATH="$ZA_CACHE_DIR$pdffile"
 # else, then the file is not a pdf or an epub, and it doesn't exist a converted version,
 # but its format is convertible
 else
@@ -139,7 +139,7 @@ else
   fi
   echo "Now we can open the file $ZA_CACHE_DIR$pdffile"
   # ...and after the conversion we open the file
-  PDF_FILE_PATH="$ZADIR$pdffile"
+  PDF_FILE_PATH="$ZA_CACHE_DIR$pdffile"
 
 fi
 
