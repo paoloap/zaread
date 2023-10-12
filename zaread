@@ -9,8 +9,7 @@ ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}"'/zaread/zareadrc'
 # READER with which we'll open pdf, epub and converted files
 READER="zathura"
 
-# here we have the execs we use to convert. if you want to use a custom exec,
-# then set it here, and go down in the script to find (and edit) the proper command
+# here we have the default execs we use to convert. if you want to use a custom one, use the config file.
 MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
@@ -59,7 +58,7 @@ else
   dir="$(pwd)""/""$(echo "$@" | sed 's|.[^/]*$||')""/"
   directory="$(echo "$dir" | sed 's|//|/|')"
 fi
-echo "$directory""$file"
+RUNTIME_LOGS="File Location : $directory$file"
 
 # get file type
 
@@ -68,7 +67,7 @@ echo "$directory""$file"
 # file position is different: we must distinguish between original and converted files
 file_converter=""
 file_mt="$(file --mime-type "$directory$file" | sed 's/^.*: //')"
-echo "$file_mt"
+RUNTIME_LOGS="$RUNTIME_LOGS""\nFile MimeType : $file_mt\n"
 cd "$directory" || return
 
 # $pdffile is a string composed this way: __$file.[pdf,epub]
@@ -91,7 +90,8 @@ elif [ "$file_mt" = "application/vnd.openxmlformats-officedocument.wordprocessin
      [ "$file_mt" = "application/vnd.oasis.opendocument.text" ] || \
      [ "$file_mt" = "application/vnd.oasis.opendocument.spreadsheet" ] || \
      [ "$file_mt" = "application/vnd.oasis.opendocument.presentation" ] || \
-     [ "$file_mt" = "text/csv" ]
+     [ "$file_mt" = "text/csv" ] || \
+     [ "$file_mt" = "text/rtf" ]
 then
   file_converter="$OFFICE_CMD"
 # if the file is a mubi ebook
@@ -103,7 +103,9 @@ elif [ "$file_mt" = "text/plain" ] && expr "$file" : "^.*\.md$" ; then
 fi
 
 # if we don't have a capable converter, we exit
+
 if [ -z "$file_converter" ]; then
+  printf "$RUNTIME_LOGS"
   echo "The file format is unsupported."
   exit 2
 # if the file a pdf or an epub, we just open it
@@ -122,22 +124,22 @@ else
   we_can_convert=$(whereis $file_converter | cut -d":" -f2)
   # if we don't have it, we can't do anything, so we exit
   if [ -z "$we_can_convert" ]; then
-     echo "The command we need to convert, $file_converter, doesn't exist on this machine."
+     printf "$RUNTIME_LOGS"
+     echo "The application required to convert the file to PDF - $file_converter cannot be found in the path"
      exit 4
   # else we process the file, and we put the converted version under $zadir$pdffile
   else
     echo "We are starting to convert the file $file using $file_converter"
     if [[ $file_converter == "$OFFICE_CMD" ]]; then
-      libreoffice --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
+      "$OFFICE_CMD" --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
       tmpfile=`echo "$file" | sed -r 's/.[^\.]*$//'`".pdf"
       mv "$ZA_CACHE_DIR$tmpfile" "$ZA_CACHE_DIR$pdffile"
     elif [[ $file_converter == "$MOBI_CMD" ]]; then
-      ebook-convert "$directory""$file" "$ZA_CACHE_DIR$pdffile"
+      "$MOBI_CMD" "$directory""$file" "$ZA_CACHE_DIR$pdffile"
     elif [[ $file_converter == "$MD_CMD" ]]; then
-      md2pdf "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
+      "$MD_CMD"  "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
     fi
   fi
-  echo "Now we can open the file $ZA_CACHE_DIR$pdffile"
   # ...and after the conversion we open the file
   PDF_FILE_PATH="$ZA_CACHE_DIR$pdffile"
 
