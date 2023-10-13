@@ -17,6 +17,7 @@ If you are opening a pdf or an epub it doesn't do anything more than launch zath
 - CSV
 - Markdown (md)
 - RTF
+- Typst (typ)
 
 ### Some optional dependencies are quite big...
 - Unfortunately, we can't have libreoffice command line tools without getting the whole suite, and I don't know any other options to convert Office files on Linux...
