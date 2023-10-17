@@ -3,7 +3,7 @@
 #### A (very) lightweight ebook and Office document reader
 
 ## What is zaread?
-zaread is a simple bash scripts that uses [zathura pdf/epub viewer](https://pwmt.org/projects/zathura/) to act as a lightweight document/ebook readonly reader
+zaread is a simple posix shell script that uses [zathura pdf/epub viewer](https://pwmt.org/projects/zathura/) to act as a lightweight document/ebook readonly reader
 
 ### How does it work?
 If you are opening a pdf or an epub it doesn't do anything more than launch zathura. If the file is a Microsoft Office document, or a "mobi" ebook, or another supported file, zaread converts it into pdf and put it into a cache. The next time you'll open the file it will take it from the cache. If you edit a document after having opened it with zaread, the next time you will open it zaread will recognize that the file differs from cache and a new converted file will be created.
@@ -34,10 +34,17 @@ Yes, you just have to change $reader variable with your chosen viewer
 At work I often need to open doc, docx, ppt, pptx files in read only mode. I hate libreoffice interface with all those buttons (useless if I just need to view file content), and I hate presentation mode, because it forces fullscreen mode and I want the freedom to open Office files in a "normal" window, considering that I have a tiling wm.
 
 ## Getting started
+
 - Install zathura (and libreoffice, calibre and md2pdf as optional dependencies)
-- git clone https://github.com/paoloap/zaread
-- cd zathura
-- sudo make install
+- Then get `zaread`
+
+```
+git clone https://github.com/paoloap/zaread
+cd zaread
+DEST=$HOME/.local make install
+# or
+sudo make install
+ ```
 
 Aaaand that's it.
 

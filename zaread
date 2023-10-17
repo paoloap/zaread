@@ -2,152 +2,211 @@
 ## zaread - a simple script created by paoloap.
 
 # zaread cache path
-ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME/.cache/"}""/zaread/"
+ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME"/.cache}/zaread/"
 # zaread config path
-ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}"'/zaread/zareadrc'
+ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME"/.config}/zaread/zareadrc"
 
-# READER with which we'll open pdf, epub and converted files
+# Default reader, i.e. command, which script uses to open pdf, epub and converted files
 READER="zathura"
-
-# here we have the default execs we use to convert. if you want to use a custom one, use the config file.
+# Default converters, i.e. commands, which script uses to convert files to pdf
 MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
 TYPST_CMD="typst"
+MD_ARG=""
+MOBI_ARG=""
+OFFICE_ARG=""
+# If you want to use other commands set these vars in $ZA_CONFIG. Some cli
+# arguments are hardcoded so some commands won't work. Check that first.
 
-# sources the variables from config file if exists
-if [ -f "$ZA_CONFIG" ]; then
-        . "$ZA_CONFIG"
-fi
+# Sources the variables from config file if exists
+# shellcheck disable=1090
+[ -f "$ZA_CONFIG" ] && . "$ZA_CONFIG"
 
 # if $ZA_CACHE_DIR doesn't exist, we create it.
-if [[ ! -d "$ZA_CACHE_DIR" ]]; then
-  mkdir -p "$ZA_CACHE_DIR"
+[ ! -d "$ZA_CACHE_DIR" ] && mkdir -p "$ZA_CACHE_DIR"
+
+# Exit if called without arguments
+if [ "$#" = 0 ]; then
+	echo "No files to open."
+	exit
 fi
 
-# if no arguments exit.
-if [ -z "$*" ]; then exit 1; fi
+if [ "$#" != 1 ]; then
+	echo "More than one filename given. Closing."
+	exit 1
+fi
 
-# if zathura is not installed, we force the user to choose a pdf READER
-# after three wrong commands, the script exits 1
-# if the user inserts a command that exists but is not a pdf READER then... then fuck him.
-counter=0
-while [[ -z `command -v "$READER"` ]]; do
-  if [ $counter -gt 3 ]; then exit 1; fi
-  let counter+=1
-  echo "Seems that you don't have zathura installed. Please choose an installed PDF READER:"
-  echo "Cannot find zathura in the path. Please provide the path to zathura or the application you want to use as the pdf READER (e.g firefox)"
-  read -r READER
-  mkdir -p "$(echo "$ZA_CONFIG" | sed 's/zareadrc//g')"
-  echo "READER=$READER" >> "$ZA_CONFIG"
-  echo "Zaread config file created at $ZA_CONFIG"
-  echo "Opening file..."
-done
+path="$1"
 
+if [ ! -f "$path" ]; then
+	echo "File doesn't exist."
+	exit 1
+fi
+
+if ! command -v "$READER" >/dev/null; then
+	echo "$READER is not on the $PATH."
+	echo "Closing."
+	exit 1
+fi
+
+echo "\$READER='$READER' is in the \$PATH. Starting script..."
 
 ## create position and file variables ##
 
 # complete file name (path excluded):
-file="$(echo "$@" | rev | cut -d'/' -f1 | rev)"
-
+file="$(basename "$path")"
+echo "Filename: $file"
+case "$path" in
 # complete directory path:
-# if it has been inserted absolute path ($@ starts with '/')
-if expr "$*" : "^/" 1> /dev/null ; then
-    directory=$(echo "$@" | rev | cut -d'/' -f2- | rev)"/"
+# if it has been inserted absolute path ($path starts with '/')
+/*)
+	directory="$(dirname "$path")"
+	;;
 # else (relative path inserted)
-else
-  dir="$(pwd)""/""$(echo "$@" | sed 's|.[^/]*$||')""/"
-  directory="$(echo "$dir" | sed 's|//|/|')"
-fi
-RUNTIME_LOGS="File Location : $directory$file"
+*)
+	directory="${PWD}/$(dirname "$path")"
+	# directory="$(echo "$dir" | tr -s '/')"
+	;;
+esac
+
+echo "Directory: $directory/"
+echo "Path: $directory/$file"
 
 # get file type
 
 # if the file is itself a pdf or an epub, or we already have a pdf converted version,
 # then we don't need a converter. But if it's an already converted document, then
 # file position is different: we must distinguish between original and converted files
-file_converter=""
-file_mt="$(file --mime-type "$directory$file" | sed 's/^.*: //')"
-RUNTIME_LOGS="$RUNTIME_LOGS""\nFile MimeType : $file_mt\n"
-cd "$directory" || return
+file_mt="$(file --mime-type "$directory/$file")"
+file_mt="${file_mt#*: }"
+echo "Mime type: $file_mt"
 
-# $pdffile is a string composed this way: __$file.[pdf,epub]
+cd "$directory" || {
+	echo "Couldn't cd into $directory"
+	exit 1
+}
+
+# $pdffile is a string composed this way: CRC_BYTECOUNT_$filename.[pdf,epub]
 # if the converted file exists, then it's named like $pdffile
-pdffile="$(cksum "$file" | sed -r 's/^([0-9]+) ([0-9]+) (.*)$/\1_\2_\3.pdf/')"
+pdffile="$(cksum "$file" | sed -E 's/^([0-9]+) ([0-9]+) (.*)$/\1_\2_\3.pdf/')"
+echo "Converted pdf filename: $pdffile"
 
-# if the file is a pdf or an epub
-if [ "$file_mt" = "application/pdf" ] || [ "$file_mt" = "application/epub+zip" ]; then
-  file_converter="none_original"
-# if the converted file exists
-elif [[ ( -f "$ZA_CACHE_DIR$pdffile" ) ]]; then
-  file_converter="none_converted"
-# if the file is an office file (ooxml or the old format or an opendocument)
-elif [ "$file_mt" = "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ] || \
-     [ "$file_mt" = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ] || \
-     [ "$file_mt" = "application/vnd.openxmlformats-officedocument.presentationml.presentation" ] || \
-     [ "$file_mt" = "application/msword" ] || \
-     [ "$file_mt" = "application/vnd.ms-excel" ] || \
-     [ "$file_mt" = "application/vnd.ms-powerpoint" ] || \
-     [ "$file_mt" = "application/vnd.oasis.opendocument.text" ] || \
-     [ "$file_mt" = "application/vnd.oasis.opendocument.spreadsheet" ] || \
-     [ "$file_mt" = "application/vnd.oasis.opendocument.presentation" ] || \
-     [ "$file_mt" = "text/csv" ] || \
-     [ "$file_mt" = "text/rtf" ]
-then
-  file_converter="$OFFICE_CMD"
-# if the file is a mubi ebook
-elif [ "$file_mt" = "application/octet-stream" ] && expr "$file" : "^.*\.mobi$" 1>/dev/null  ; then
-  file_converter="$MOBI_CMD"
-# if the file is a markdown
-elif [ "$file_mt" = "text/plain" ] && expr "$file" : "^.*\.md$" ; then
-  file_converter="$MD_CMD"
-elif [ "$file_mt" = "text/plain" ] && expr "$file" : "^.*\.typ$" ; then
-  file_converter="$TYPST_CMD"
-fi
-
-# if we don't have a capable converter, we exit
-
-if [ -z "$file_converter" ]; then
-  printf "$RUNTIME_LOGS"
-  echo "The file format is unsupported."
-  exit 2
-# if the file a pdf or an epub, we just open it
-elif [ "$file_converter" = "none_original" ]; then
-  echo "The file is already in PDF format. We just open it."
-  PDF_FILE_PATH="$directory$file"
-# if we have a converted file, we just open it (the only difference with the case above
-# is that the converted file is into cache directory and has a different name)
-elif [ "$file_converter" = "none_converted" ]; then
-  echo "We already converted this file. We just open it."
-  PDF_FILE_PATH="$ZA_CACHE_DIR$pdffile"
-# else, then the file is not a pdf or an epub, and it doesn't exist a converted version,
-# but its format is convertible
+file_converter=""
+# If the converted file exists we can just open it.
+if [ -f "$ZA_CACHE_DIR/$pdffile" ]; then
+	file_converter="none_converted"
 else
-  # first, we check if we have the proper converter installed
-  we_can_convert=$(whereis $file_converter | cut -d":" -f2)
-  # if we don't have it, we can't do anything, so we exit
-  if [ -z "$we_can_convert" ]; then
-     printf "$RUNTIME_LOGS"
-     echo "The application required to convert the file to PDF - $file_converter cannot be found in the path"
-     exit 4
-  # else we process the file, and we put the converted version under $zadir$pdffile
-  else
-    echo "We are starting to convert the file $file using $file_converter"
-    if [[ $file_converter == "$OFFICE_CMD" ]]; then
-      "$OFFICE_CMD" --convert-to pdf "$directory$file" --headless --outdir "$ZA_CACHE_DIR"
-      tmpfile=`echo "$file" | sed -r 's/.[^\.]*$//'`".pdf"
-      mv "$ZA_CACHE_DIR$tmpfile" "$ZA_CACHE_DIR$pdffile"
-    elif [[ $file_converter == "$MOBI_CMD" ]]; then
-      "$MOBI_CMD" "$directory""$file" "$ZA_CACHE_DIR$pdffile"
-    elif [[ $file_converter == "$MD_CMD" ]]; then
-      "$MD_CMD"  "$directory""$file" -o "$ZA_CACHE_DIR""$pdffile"
-    elif [[ $file_converter == "$TYPST_CMD" ]]; then
-      "$TYPST_CMD" compile "$directory""$file" "$ZA_CACHE_DIR""$pdffile"
-    fi
-  fi
-  # ...and after the conversion we open the file
-  PDF_FILE_PATH="$ZA_CACHE_DIR$pdffile"
+	case "$file_mt" in
+	"application/pdf" | "application/epub+zip")
+		# If the file is a pdf or an epub we don't need to convert it.
+		file_converter="none_original"
+		;;
+	"application/vnd.openxmlformats-officedocument.wordprocessingml.document" | \
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" | \
+		"application/vnd.openxmlformats-officedocument.presentationml.presentation" | \
+		"application/msword" | \
+		"application/vnd.ms-excel" | \
+		"application/vnd.ms-powerpoint" | \
+		"application/vnd.oasis.opendocument.text" | \
+		"application/vnd.oasis.opendocument.spreadsheet" | \
+		"application/vnd.oasis.opendocument.presentation" | \
+		"text/rtf" | \
+		"text/csv")
+		# If the file is an office file (ooxml or the old format or an
+		# opendocument) we convert it using $OFFICE_CMD.
+		file_converter="$OFFICE_CMD"
+		;;
+	"application/octet-stream" | \
+		"application/x-mobipocket-ebook")
 
+		case "$file" in
+		*.mobi)
+			# If the file is a mobi ebook we convert it using $MOBI_CMD.
+			file_converter="$MOBI_CMD"
+			;;
+		esac
+		;;
+	"text/plain" | \
+		"text/x-c")
+		case "$file" in
+		*.md)
+			# If the file is a markdown we convert it using $MD_CMD.
+			file_converter="$MD_CMD"
+			;;
+		*.typ)
+			file_converter="$TYPST_CMD"
+			;;
+		esac
+		;;
+	esac
 fi
 
-nohup "$READER" "$PDF_FILE_PATH" > /dev/null 2>/dev/null &
+case "$file_converter" in
+"")
+	echo "The file format is unsupported."
+	exit 2
+	;;
+"none_original")
+	echo "The file is already in PDF format. We just open it."
+	eval "$READER" \""$directory/$file"\"
+	;;
+"none_converted")
+	echo "We already converted this file. We just open it."
+	eval "$READER" \""$ZA_CACHE_DIR/$pdffile"\"
+	;;
+*)
+	# So the file is not a pdf or an epub, and a converted version
+	# doesn't exist, but its format may be convertible
+	if command -v "$file_converter" >/dev/null; then
+		echo "We are starting to convert the file \"$file\" using $file_converter"
+		# If converter tools are changed in $ZA_CONFIG check calling
+		# commands bellow. They may need to be called with different
+		# arguments and format.
+		case "$file_converter" in
+		"$OFFICE_CMD")
+			eval "$OFFICE_CMD" "$OFFICE_ARG" --convert-to pdf \""$directory/$file"\" --outdir \""$ZA_CACHE_DIR"\"
+			# We need to handle cases where file starts with a . and
+			# that's the only one . in filename, i.e. filename hasn't
+			# got extension
+			case "$file" in
+			.*.*)
+				# If it has one more . after the first character
+				# which is a ., we'll consider that as an
+				# extension, so we can use parameter expansion,
+				# and we need this case for the next one to work.
+				tmpfile="${file%.*}.pdf"
+				;;
+			.*)
+				# If this case was the first it would also match cases with 2 .'s in the filename.
+				# If the filename starts with a . and it hasn't got an
+				# extension, we just add .pdf to the filename to get
+				# tmpfilename
+				tmpfile="$file.pdf"
+				;;
+			*)
+				# In the rest of cases we can use parameter expansion
+				tmpfile="${file%.*}.pdf"
+				;;
+			esac
+			mv "$ZA_CACHE_DIR/$tmpfile" "$ZA_CACHE_DIR/$pdffile"
+			;;
+		"$MOBI_CMD")
+			eval "$MOBI_CMD" "$MOBI_ARG" \""$directory/$file"\" \""$ZA_CACHE_DIR/$pdffile"\"
+			;;
+		"$MD_CMD")
+			eval "$MD_CMD" "$MD_ARG" \""$directory/$file"\" -o \""$ZA_CACHE_DIR/$pdffile"\"
+			;;
+		"$TYPST_CMD")
+			eval "$TYPST_CMD" compile \""$directory/$file"\" \""$ZA_CACHE_DIR/$pdffile"\"
+			;;
+		esac
+	else
+		echo "The command we need to convert '$file_converter' is not in \$PATH."
+		exit 4
+	fi
+	echo "Now we can open the file $ZA_CACHE_DIR/$pdffile"
+	# ...and after the conversion we open the file
+	eval "$READER" \""$ZA_CACHE_DIR/$pdffile"\"
+	;;
+esac
