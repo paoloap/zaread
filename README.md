@@ -32,10 +32,15 @@ Yes, you just have to change $reader variable with your chosen viewer
 At work I often need to open doc, docx, ppt, pptx files in read only mode. I hate libreoffice interface with all those buttons (useless if I just need to view file content), and I hate presentation mode, because it forces fullscreen mode and I want the freedom to open Office files in a "normal" window, considering that I have a tiling wm.
 
 ## Getting started
+
 - Install zathura (and libreoffice, calibre and md2pdf as optional dependencies)
-- git clone https://github.com/paoloap/zaread
-- cd zathura
-- sudo make install
+- Then get `zaread`
+
+```
+git clone https://github.com/paoloap/zaread
+cd zathura
+DEST=$HOME/.local make install
+ ```
 
 Aaaand that's it.
 
