@@ -2,16 +2,17 @@
 ## zaread - a simple script created by paoloap.
 
 # zaread cache path
-ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME"/.cache}/zaread"
+ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME"/.cache}/zaread/"
 # zaread config path
 ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME"/.config}/zaread/zareadrc"
 
 # Default reader, i.e. command, which script uses to open pdf, epub and converted files
 READER="zathura"
-# Defaults converters, i.e. commands, which script uses to convert files to pdf
+# Default converters, i.e. commands, which script uses to convert files to pdf
 MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
+TYPST_CMD="typst"
 MD_ARG=""
 MOBI_ARG=""
 OFFICE_ARG=""
@@ -43,29 +44,13 @@ if [ ! -f "$path" ]; then
 	exit 1
 fi
 
-# If set reader isn't in the $PATH, we force the user to choose a pdf reader
-# after three wrong commands, the script exits.
-# If the user inserts a command that exists but is not a pdf READER then... then fuck her/him.
-counter=1
-while ! command -v "$READER" >/dev/null; do
-	if [ "$counter" -gt 3 ]; then
-		echo "'$READER' not in the \$PATH"
-		exit 1
-	fi
+if ! command -v "$READER" >/dev/null; then
+	echo "$READER is not on the $PATH."
+	echo "Closing."
+	exit 1
+fi
 
-	echo "Set \$READER='$READER' command is not in the \$PATH. Close script, set right command in $ZA_CONFIG and start again or enter valid reader command. ($counter/3)"
-
-	echo "Enter new reader command which will be added to $ZA_CONFIG:"
-	read -r READER
-	# Not sure if this check is needed
-	[ ! -d "$ZA_CONFIG" ] && mkdir -p "$(dirname "$ZA_CONFIG")"
-	sed -i '/^[[:space:]]*READER=/d' "$ZA_CONFIG"
-	echo "READER=$READER" >>"$ZA_CONFIG"
-	echo "READER=$READER appended to $ZA_CONFIG"
-	counter=$((counter + 1))
-done
-
-echo "\$READER='$READER' is valid. Starting script..."
+echo "\$READER='$READER' is in the \$PATH. Starting script..."
 
 ## create position and file variables ##
 
@@ -85,7 +70,7 @@ case "$path" in
 	;;
 esac
 
-echo "Directory: $directory"
+echo "Directory: $directory/"
 echo "Path: $directory/$file"
 
 # get file type
@@ -126,6 +111,7 @@ else
 		"application/vnd.oasis.opendocument.text" | \
 		"application/vnd.oasis.opendocument.spreadsheet" | \
 		"application/vnd.oasis.opendocument.presentation" | \
+		"text/rtf" | \
 		"text/csv")
 		# If the file is an office file (ooxml or the old format or an
 		# opendocument) we convert it using $OFFICE_CMD.
@@ -148,6 +134,9 @@ else
 			# If the file is a markdown we convert it using $MD_CMD.
 			file_converter="$MD_CMD"
 			;;
+		*.typ)
+			file_converter="$TYPST_CMD"
+			;;
 		esac
 		;;
 	esac
@@ -168,7 +157,7 @@ case "$file_converter" in
 	;;
 *)
 	# So the file is not a pdf or an epub, and a converted version
-	# doesn't exist, but its format may be converted
+	# doesn't exist, but its format may be convertible
 	if command -v "$file_converter" >/dev/null; then
 		echo "We are starting to convert the file \"$file\" using $file_converter"
 		# If converter tools are changed in $ZA_CONFIG check calling
@@ -207,6 +196,9 @@ case "$file_converter" in
 			;;
 		"$MD_CMD")
 			eval "$MD_CMD" "$MD_ARG" \""$directory/$file"\" -o \""$ZA_CACHE_DIR/$pdffile"\"
+			;;
+		"$TYPST_CMD")
+			eval "$TYPST_CMD" compile \""$directory/$file"\" \""$ZA_CACHE_DIR/$pdffile"\"
 			;;
 		esac
 	else
