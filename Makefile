@@ -1,3 +1,4 @@
+DEST ?= /usr
 install: 
 	cp zaread $(DEST)/bin
 	chmod 755 $(DEST)/bin/zaread
