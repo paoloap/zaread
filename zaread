@@ -13,6 +13,7 @@ MOBI_CMD="ebook-convert"
 OFFICE_CMD="soffice"
 MD_CMD="md2pdf"
 TYPST_CMD="typst"
+TYPST_ARG="compile" # Can be changed to "watch"
 MD_ARG=""
 MOBI_ARG=""
 OFFICE_ARG=""
@@ -198,7 +199,8 @@ case "$file_converter" in
 			eval "$MD_CMD" "$MD_ARG" \""$directory/$file"\" -o \""$ZA_CACHE_DIR/$pdffile"\"
 			;;
 		"$TYPST_CMD")
-			eval "$TYPST_CMD" compile \""$directory/$file"\" \""$ZA_CACHE_DIR/$pdffile"\"
+			eval "$TYPST_CMD" "$TYPST_ARG" \""$directory/$file"\" \""$ZA_CACHE_DIR/$pdffile"\" --open $READER
+			exit
 			;;
 		esac
 	else
