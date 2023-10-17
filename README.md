@@ -38,7 +38,7 @@ At work I often need to open doc, docx, ppt, pptx files in read only mode. I hat
 
 ```
 git clone https://github.com/paoloap/zaread
-cd zathura
+cd zaread
 DEST=$HOME/.local make install
 # or
 sudo make install
