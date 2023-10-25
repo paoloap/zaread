@@ -129,7 +129,8 @@ else
 		esac
 		;;
 	"text/plain" | \
-		"text/x-c")
+		"text/x-c" | \
+		"text/x-objective-c" )
 		case "$file" in
 		*.md)
 			# If the file is a markdown we convert it using $MD_CMD.
