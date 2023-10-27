@@ -76,7 +76,7 @@ echo "Path: $directory/$file"
 
 # get file type
 
-# if the file is itself a pdf or an epub, or we already have a pdf converted version,
+# if the file is itself a pdf, a djvu or an epub, or we already have a pdf converted version,
 # then we don't need a converter. But if it's an already converted document, then
 # file position is different: we must distinguish between original and converted files
 file_mt="$(file --mime-type "$directory/$file")"
@@ -99,8 +99,8 @@ if [ -f "$ZA_CACHE_DIR/$pdffile" ]; then
 	file_converter="none_converted"
 else
 	case "$file_mt" in
-	"application/pdf" | "application/epub+zip")
-		# If the file is a pdf or an epub we don't need to convert it.
+	"application/pdf" | "image/vnd.djvu" | "application/epub+zip")
+		# If the file is a pdf, a djvu or an epub we don't need to convert it.
 		file_converter="none_original"
 		;;
 	"application/vnd.openxmlformats-officedocument.wordprocessingml.document" | \
