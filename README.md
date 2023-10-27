@@ -10,6 +10,7 @@ If you are opening a pdf or an epub it doesn't do anything more than launch zath
 
 ### What file formats does zaread support?
 - PDF
+- DJVU
 - EPUB
 - OOXML documents (docx, xlsx, pptx)
 - Old MS Office documents (doc, xls, ppt)
