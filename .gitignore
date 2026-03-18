@@ -1,0 +1,8 @@
+# ===========================
+# Local
+# ===========================
+AGENTS.md
+CLAUDE.md
+PLAN.md
+.claude/
+.worktrees/
