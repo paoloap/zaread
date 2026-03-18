@@ -65,6 +65,31 @@ That's it. Install optional converters for whatever formats you need.
 
 A `.desktop` file is included for file manager integration.
 
+## Tips
+
+### Following links between documents
+
+If you have markdown files that link to each other, you can set up zathura to follow those links through zaread. The trick is a wrapper script that catches zathura's link errors and redirects them back through zaread.
+
+Save this as e.g. `~/.local/bin/linkzathura.sh`:
+
+```sh
+#!/bin/sh
+zathura "$1" 2>&1 | awk -vd="$(pwd)" -vc="$HOME/.cache/zaread" -F'<<|>>' \
+  'NF > 0 && !/^error/ { gsub(c, d, $2); print $2; system("") }' | \
+  xargs -r -n 1 zaread
+```
+
+Then in your `zareadrc`:
+
+```sh
+READER="linkzathura.sh"
+```
+
+Now opening `A.md` with zaread and clicking a link to `B.md` will open it in a new zaread instance. Requires `zathura-pdf-poppler`.
+
+_Contributed by [Eloitor](https://github.com/Eloitor) in [#30](https://github.com/paoloap/zaread/issues/30)._
+
 ## Changelog
 
 #### 2025-03-18
