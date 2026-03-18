@@ -123,6 +123,8 @@ If you own the file, the best workaround is to set the page layout in the spread
 
 #### 2025-03-18
 - Security and POSIX fixes, verbose output behind `-v` flag
+- Conversion error handling, cache cleanup (`-c` flag)
+- Added macro-enabled Office formats (xlsm, xlsb, docm, pptm, ppsx, dotx)
 - Makefile and CI improvements
 
 -- iuliandita
