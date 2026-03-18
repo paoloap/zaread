@@ -41,6 +41,14 @@ The config is sourced as shell, so anything you set there takes effect at runtim
 
 At work I often need to open doc, docx, ppt, pptx files in read only mode. I hate the LibreOffice interface with all those buttons (useless if I just need to view file content), and I hate presentation mode, because it forces fullscreen. I want the freedom to open Office files in a normal window with a tiling WM.
 
+## Usage
+
+```
+zaread [-v] <file>
+```
+
+Pass `-v` for verbose output (shows MIME detection, cache paths, converter used).
+
 ## Getting started
 
 Install zathura, then:
@@ -58,6 +66,12 @@ That's it. Install optional converters for whatever formats you need.
 A `.desktop` file is included for file manager integration.
 
 ## Changelog
+
+#### 2025-03-18
+- Security and POSIX fixes, verbose output behind `-v` flag
+- Makefile and CI improvements
+
+-- iuliandita
 
 #### 2022-04-22
 - Fixed quoting for paths with spaces (thanks hassty)
