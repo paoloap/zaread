@@ -65,6 +65,18 @@ That's it. Install optional converters for whatever formats you need.
 
 A `.desktop` file is included for file manager integration.
 
+### macOS
+
+zaread works on macOS, but zathura isn't in Homebrew's main repo. You'll need the [zuum/zathura](https://github.com/zuum/homebrew-zathura) tap:
+
+```
+brew tap zuum/zathura
+brew install zathura
+brew install zathura-pdf-poppler
+```
+
+Then install zaread the usual way (`git clone` + `make install` as above). The `.desktop` file won't do anything on macOS, but the script itself works fine.
+
 ## Tips
 
 ### Following links between documents
