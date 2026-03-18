@@ -67,12 +67,21 @@ A `.desktop` file is included for file manager integration.
 
 ### macOS
 
-zaread works on macOS, but zathura isn't in Homebrew's main repo. You'll need the [zuum/zathura](https://github.com/zuum/homebrew-zathura) tap:
+zaread works on macOS, but zathura isn't in Homebrew's main repo. You'll need the [homebrew-zathura](https://github.com/homebrew-zathura/homebrew-zathura) tap:
 
 ```
-brew tap zuum/zathura
-brew install zathura
-brew install zathura-pdf-poppler
+brew tap homebrew-zathura/zathura
+brew install zathura zathura-pdf-poppler
+```
+
+After installing plugins, link them so zathura can find them:
+
+```
+d=$(brew --prefix zathura)/lib/zathura; mkdir -p $d
+for n in cb djvu pdf-mupdf pdf-poppler ps; do
+  p=$(brew --prefix zathura-$n)/lib$n.dylib
+  [ -f "$p" ] && ln -s "$p" "$d"
+done
 ```
 
 Then install zaread the usual way (`git clone` + `make install` as above). The `.desktop` file won't do anything on macOS, but the script itself works fine.
@@ -101,6 +110,12 @@ READER="linkzathura.sh"
 Now opening `A.md` with zaread and clicking a link to `B.md` will open it in a new zaread instance. Requires `zathura-pdf-poppler`.
 
 _Contributed by [Eloitor](https://github.com/Eloitor) in [#30](https://github.com/paoloap/zaread/issues/30)._
+
+### Spreadsheet pagination
+
+When converting spreadsheets (xlsx, ods, csv) to PDF, LibreOffice uses the file's own page layout -- usually A4, portrait. Large spreadsheets will get split across multiple pages and may crop columns. This is a LibreOffice limitation, not something zaread can control.
+
+If you own the file, the best workaround is to set the page layout in the spreadsheet itself (landscape, larger paper size, or "fit all columns to one page" under print settings) before opening it with zaread.
 
 ## Changelog
 
