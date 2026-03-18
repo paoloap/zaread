@@ -4,6 +4,7 @@
 # Exit codes:
 #   1 - usage error, missing file, or missing dependency
 #   2 - unsupported file format
+#   3 - conversion failed
 
 # zaread cache path
 ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME"/.cache}/zaread/"
@@ -44,12 +45,21 @@ err() {
 }
 
 usage() {
-	echo "Usage: zaread [-v] <file>" >&2
+	echo "Usage: zaread [-v] [-c] <file>" >&2
 }
 
-while getopts "vh" opt; do
+while getopts "vhc" opt; do
 	case "$opt" in
 	v) VERBOSE=1 ;;
+	c)
+		if [ -d "$ZA_CACHE_DIR" ]; then
+			rm -rf "${ZA_CACHE_DIR:?}"/*
+			echo "Cache cleared: $ZA_CACHE_DIR"
+		else
+			echo "No cache directory found."
+		fi
+		exit 0
+		;;
 	h) usage; exit 0 ;;
 	*) usage; exit 1 ;;
 	esac
@@ -142,6 +152,14 @@ else
 			;;
 		esac
 		;;
+	# file(1) reports macro-enabled Office formats as application/zip
+	"application/zip")
+		case "$file" in
+		*.xlsm | *.xlsb | *.docm | *.pptm | *.ppsx | *.dotx)
+			file_converter="$OFFICE_CMD"
+			;;
+		esac
+		;;
 	# file(1) sometimes reports markdown/typst as C, ObjC, or Python source
 	"text/plain" | \
 		"text/x-c" | \
@@ -182,7 +200,10 @@ case "$file_converter" in
 	case "$file_converter" in
 	"$OFFICE_CMD")
 		# shellcheck disable=SC2086
-		"$OFFICE_CMD" $OFFICE_ARG --convert-to pdf "$directory/$file" --outdir "$ZA_CACHE_DIR"
+		if ! "$OFFICE_CMD" $OFFICE_ARG --convert-to pdf "$directory/$file" --outdir "$ZA_CACHE_DIR"; then
+			err "conversion failed: $OFFICE_CMD $file"
+			exit 3
+		fi
 		# soffice names output by replacing/appending .pdf;
 		# handle dotfiles with and without extensions
 		case "$file" in
@@ -200,15 +221,24 @@ case "$file_converter" in
 		;;
 	"$MOBI_CMD")
 		# shellcheck disable=SC2086
-		"$MOBI_CMD" $MOBI_ARG "$directory/$file" "$ZA_CACHE_DIR/$pdffile"
+		if ! "$MOBI_CMD" $MOBI_ARG "$directory/$file" "$ZA_CACHE_DIR/$pdffile"; then
+			err "conversion failed: $MOBI_CMD $file"
+			exit 3
+		fi
 		;;
 	"$MD_CMD")
 		# shellcheck disable=SC2086
-		"$MD_CMD" $MD_ARG "$directory/$file" -o "$ZA_CACHE_DIR/$pdffile"
+		if ! "$MD_CMD" $MD_ARG "$directory/$file" -o "$ZA_CACHE_DIR/$pdffile"; then
+			err "conversion failed: $MD_CMD $file"
+			exit 3
+		fi
 		;;
 	"$TYPST_CMD")
 		# shellcheck disable=SC2086
-		"$TYPST_CMD" $TYPST_ARG "$directory/$file" "$ZA_CACHE_DIR/$pdffile" --open "$READER"
+		if ! "$TYPST_CMD" $TYPST_ARG "$directory/$file" "$ZA_CACHE_DIR/$pdffile" --open "$READER"; then
+			err "conversion failed: $TYPST_CMD $file"
+			exit 3
+		fi
 		exit
 		;;
 	esac

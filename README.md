@@ -8,9 +8,10 @@ zaread is a simple POSIX shell script that uses [zathura](https://pwmt.org/proje
 
 ### What file formats does zaread support?
 - PDF, DJVU, EPUB (opened directly via zathura)
-- OOXML documents (docx, xlsx, pptx)
+- OOXML documents (docx, xlsx, pptx, and macro-enabled variants like xlsm, docm, pptm)
 - Old MS Office documents (doc, xls, ppt)
 - OpenDocument formats (odt, ods, odp)
+- Other Office formats (xlsb, ppsx, dotx)
 - MOBI
 - CSV, RTF
 - Markdown (md)
@@ -44,10 +45,11 @@ At work I often need to open doc, docx, ppt, pptx files in read only mode. I hat
 ## Usage
 
 ```
-zaread [-v] <file>
+zaread [-v] [-c] <file>
 ```
 
-Pass `-v` for verbose output (shows MIME detection, cache paths, converter used).
+- `-v` -- verbose output (shows MIME detection, cache paths, converter used)
+- `-c` -- clear the conversion cache (`~/.cache/zaread/`)
 
 ## Getting started
 
