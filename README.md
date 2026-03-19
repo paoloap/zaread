@@ -141,53 +141,7 @@ If you own the file, the best workaround is to set the page layout in the spread
 
 ## Changelog
 
-#### 2026-03-19 (v1.4.2)
-- Fixed `err()` called before its definition when cache directory creation fails
-- `-V`, `-h`, `-c` no longer create the cache directory as a side effect
-- Removed trailing slash from default cache path (avoids `//` in verbose output)
-- Moved function definitions before config sourcing for correct initialization order
-
--- iuliandita
-
-#### 2026-03-19 (v1.4.1)
-- Error handling for cache directory creation and path resolution failures
-- `-h` output goes to stdout (errors stay on stderr)
-- Cleaner error messages for unknown options (suppressed shell-default getopts errors)
-- Makefile: quoted paths to handle `DEST` with spaces
-- Documented all config variables and exit codes in README
-
--- iuliandita
-
-#### 2026-03-19 (v1.4.0)
-- Force re-conversion flag (`-f`) to bypass cache
-- Runtime check for `file(1)` dependency
-- Path canonicalization for cleaner verbose output
-- DRY converter dispatch via `run_convert()` helper
-- Pinned CI runners to `ubuntu-24.04` for consistent tooling
-- Release workflow: tag/version validation, shellcheck gate, script attached as release asset
-- Documented implicit dependencies, `-h` flag, `.desktop` `NoDisplay=true` behavior
-
--- iuliandita
-
-#### 2026-03-19 (v1.3.0)
-- Version flag (`-V`)
-- `READER_ARG` config variable for passing flags to the reader
-- Atomic writes: converters now write to temp files and rename on success, preventing corrupt cache entries on interrupt
-- LibreOffice instance isolation: concurrent conversions no longer conflict with running LibreOffice
-- Fixed `text/markdown` MIME detection on systems with newer shared-mime-info
-- Replaced fragile `sed` cache key generation with pure POSIX shell expansion
-- Fixed MOBI files with `application/x-mobipocket-ebook` MIME type not needing `.mobi` extension
-- Typst conversion uses the standard converter flow instead of a special case
-
--- iuliandita
-
-#### 2026-03-18
-- Security and POSIX fixes, verbose output behind `-v` flag
-- Conversion error handling, cache cleanup (`-c` flag)
-- Added macro-enabled Office formats (xlsm, xlsb, docm, pptm, ppsx, dotx)
-- Makefile and CI improvements
-
--- iuliandita
+Recent changes are in [GitHub Releases](https://github.com/paoloap/zaread/releases).
 
 #### 2022-04-22
 - Fixed quoting for paths with spaces (thanks hassty)

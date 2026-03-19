@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Verify tag matches script version
         env:
@@ -27,14 +29,15 @@ jobs:
       - name: Lint
         run: shellcheck zaread
 
-      - name: Extract changelog entry
+      - name: Generate release notes
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          awk '/^#### [0-9]/{if(found) exit; found=1; next} found && /^-- /{exit} found{print}' README.md > /tmp/notes.md
-          if [ ! -s /tmp/notes.md ]; then
-            echo "::warning::No changelog entry found; using tag name as release notes"
-            echo "Release $TAG" > /tmp/notes.md
+          prev_tag=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || echo "")
+          if [ -n "$prev_tag" ]; then
+            git log --pretty=format:"- %s" "$prev_tag..$TAG" > /tmp/notes.md
+          else
+            echo "Initial release" > /tmp/notes.md
           fi
           cat /tmp/notes.md
 
