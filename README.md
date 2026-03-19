@@ -141,6 +141,14 @@ If you own the file, the best workaround is to set the page layout in the spread
 
 ## Changelog
 
+#### 2026-03-19 (v1.4.2)
+- Fixed `err()` called before its definition when cache directory creation fails
+- `-V`, `-h`, `-c` no longer create the cache directory as a side effect
+- Removed trailing slash from default cache path (avoids `//` in verbose output)
+- Moved function definitions before config sourcing for correct initialization order
+
+-- iuliandita
+
 #### 2026-03-19 (v1.4.1)
 - Error handling for cache directory creation and path resolution failures
 - `-h` output goes to stdout (errors stay on stderr)

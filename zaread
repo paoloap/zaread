@@ -1,7 +1,7 @@
 #!/bin/sh
 ## zaread - a simple script created by paoloap.
 
-VERSION="1.4.1"
+VERSION="1.4.2"
 
 # Exit codes:
 #   1 - usage error, missing file, or missing dependency
@@ -9,7 +9,7 @@ VERSION="1.4.1"
 #   3 - conversion failed
 
 # zaread cache path
-ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME"/.cache}/zaread/"
+ZA_CACHE_DIR="${XDG_CACHE_HOME:-"$HOME"/.cache}/zaread"
 # zaread config path
 ZA_CONFIG="${XDG_CONFIG_HOME:-"$HOME"/.config}/zaread/zareadrc"
 
@@ -29,13 +29,6 @@ OFFICE_ARG=""
 
 # Verbose output (override with -v flag or set in config)
 VERBOSE=0
-
-# Override any of the above via config file
-# shellcheck disable=SC1090
-[ -f "$ZA_CONFIG" ] && . "$ZA_CONFIG"
-
-# Create cache dir if needed
-[ -d "$ZA_CACHE_DIR" ] || mkdir -p "$ZA_CACHE_DIR" || { err "cannot create cache directory: $ZA_CACHE_DIR"; exit 1; }
 
 log() {
 	if [ "$VERBOSE" -eq 1 ]; then
@@ -62,6 +55,10 @@ run_convert() {
 	fi
 	mv "$ZA_CACHE_DIR/$pdffile.part" "$ZA_CACHE_DIR/$pdffile"
 }
+
+# Override any of the above via config file
+# shellcheck disable=SC1090
+[ -f "$ZA_CONFIG" ] && . "$ZA_CONFIG"
 
 FORCE=0
 
@@ -115,6 +112,9 @@ if ! command -v file >/dev/null; then
 	err "file is not in PATH (needed for MIME detection)"
 	exit 1
 fi
+
+# Create cache dir if needed (deferred so -V/-h/-c don't create it as a side effect)
+[ -d "$ZA_CACHE_DIR" ] || mkdir -p "$ZA_CACHE_DIR" || { err "cannot create cache directory: $ZA_CACHE_DIR"; exit 1; }
 
 log "Reader: $READER"
 
