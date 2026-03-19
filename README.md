@@ -26,6 +26,8 @@ Only zathura is required. Everything else is optional -- zaread checks at runtim
 - **md2pdf** -- for Markdown. Has some Python dependencies but it's a better option than the old pandoc approach, which needed the whole texlive suite.
 - **typst** -- for Typst documents.
 
+zaread also uses `file` (for MIME detection) and `cksum` (for cache keys), both pre-installed on virtually all Unix systems.
+
 ### Can I use a different PDF viewer?
 
 Yes. Create a config file at `~/.config/zaread/zareadrc` (or `$XDG_CONFIG_HOME/zaread/zareadrc`) and override any of the default variables:
@@ -46,12 +48,14 @@ At work I often need to open doc, docx, ppt, pptx files in read only mode. I hat
 ## Usage
 
 ```
-zaread [-v] [-c] [-V] <file>
+zaread [-v] [-f] [-c] [-V] [-h] <file>
 ```
 
 - `-v` -- verbose output (shows MIME detection, cache paths, converter used)
+- `-f` -- force re-conversion, ignoring cached results
 - `-c` -- clear the conversion cache (`~/.cache/zaread/`)
 - `-V` -- print version and exit
+- `-h` -- show usage
 
 ## Getting started
 
@@ -67,7 +71,7 @@ sudo make install
 
 That's it. Install optional converters for whatever formats you need.
 
-A `.desktop` file is included for file manager integration.
+A `.desktop` file is included for file manager integration. It registers MIME type associations so file managers can open supported formats with zaread, but uses `NoDisplay=true` so it won't appear in application launchers.
 
 ### macOS
 
