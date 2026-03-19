@@ -1,0 +1,26 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract changelog entry
+        run: |
+          # Grab the first changelog section from README.md (between first and second #### header)
+          awk '/^#### [0-9]/{if(found) exit; found=1; next} found && /^-- /{exit} found{print}' README.md > /tmp/notes.md
+          cat /tmp/notes.md
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" --title "$TAG" --notes-file /tmp/notes.md
