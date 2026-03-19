@@ -136,6 +136,8 @@ If you own the file, the best workaround is to set the page layout in the spread
 - Release workflow: tag/version validation, shellcheck gate, script attached as release asset
 - Documented implicit dependencies, `-h` flag, `.desktop` `NoDisplay=true` behavior
 
+-- iuliandita
+
 #### 2026-03-19 (v1.3.0)
 - Version flag (`-V`)
 - `READER_ARG` config variable for passing flags to the reader
