@@ -33,10 +33,22 @@ zaread also uses `file` (for MIME detection) and `cksum` (for cache keys), both 
 Yes. Create a config file at `~/.config/zaread/zareadrc` (or `$XDG_CONFIG_HOME/zaread/zareadrc`) and override any of the default variables:
 
 ```sh
-READER="your-viewer"
-READER_ARG="--mode=fullscreen"
-OFFICE_CMD="your-converter"
-# etc.
+# Reader
+READER="zathura"
+READER_ARG=""
+
+# Converters
+OFFICE_CMD="soffice"       # LibreOffice
+OFFICE_ARG=""
+MOBI_CMD="ebook-convert"   # calibre
+MOBI_ARG=""
+MD_CMD="md2pdf"
+MD_ARG=""
+TYPST_CMD="typst"
+TYPST_ARG="compile"
+
+# Behavior
+VERBOSE=0
 ```
 
 The config is sourced as shell, so anything you set there takes effect at runtime.
@@ -56,6 +68,8 @@ zaread [-v] [-f] [-c] [-V] [-h] <file>
 - `-c` -- clear the conversion cache (`~/.cache/zaread/`)
 - `-V` -- print version and exit
 - `-h` -- show usage
+
+Exit codes: `0` success, `1` usage error / missing file / missing dependency, `2` unsupported format, `3` conversion failed.
 
 ## Getting started
 
@@ -126,6 +140,15 @@ When converting spreadsheets (xlsx, ods, csv) to PDF, LibreOffice uses the file'
 If you own the file, the best workaround is to set the page layout in the spreadsheet itself (landscape, larger paper size, or "fit all columns to one page" under print settings) before opening it with zaread.
 
 ## Changelog
+
+#### 2026-03-19 (v1.4.1)
+- Error handling for cache directory creation and path resolution failures
+- `-h` output goes to stdout (errors stay on stderr)
+- Cleaner error messages for unknown options (suppressed shell-default getopts errors)
+- Makefile: quoted paths to handle `DEST` with spaces
+- Documented all config variables and exit codes in README
+
+-- iuliandita
 
 #### 2026-03-19 (v1.4.0)
 - Force re-conversion flag (`-f`) to bypass cache
