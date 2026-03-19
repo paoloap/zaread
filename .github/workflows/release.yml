@@ -9,18 +9,37 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract changelog entry
+      - name: Verify tag matches script version
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          # Grab the first changelog section from README.md (between first and second #### header)
+          script_ver=$(grep '^VERSION=' zaread | cut -d'"' -f2)
+          tag_ver="${TAG#v}"
+          if [ "$script_ver" != "$tag_ver" ]; then
+            echo "::error::Tag $TAG does not match VERSION=$script_ver in zaread"
+            exit 1
+          fi
+
+      - name: Lint
+        run: shellcheck zaread
+
+      - name: Extract changelog entry
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
           awk '/^#### [0-9]/{if(found) exit; found=1; next} found && /^-- /{exit} found{print}' README.md > /tmp/notes.md
+          if [ ! -s /tmp/notes.md ]; then
+            echo "::warning::No changelog entry found; using tag name as release notes"
+            echo "Release $TAG" > /tmp/notes.md
+          fi
           cat /tmp/notes.md
 
       - name: Create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" --title "$TAG" --notes-file /tmp/notes.md
+        run: gh release create "$TAG" --title "$TAG" --notes-file /tmp/notes.md zaread
