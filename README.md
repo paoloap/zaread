@@ -127,7 +127,16 @@ If you own the file, the best workaround is to set the page layout in the spread
 
 ## Changelog
 
-#### 2026-03-19
+#### 2026-03-19 (v1.4.0)
+- Force re-conversion flag (`-f`) to bypass cache
+- Runtime check for `file(1)` dependency
+- Path canonicalization for cleaner verbose output
+- DRY converter dispatch via `run_convert()` helper
+- Pinned CI runners to `ubuntu-24.04` for consistent tooling
+- Release workflow: tag/version validation, shellcheck gate, script attached as release asset
+- Documented implicit dependencies, `-h` flag, `.desktop` `NoDisplay=true` behavior
+
+#### 2026-03-19 (v1.3.0)
 - Version flag (`-V`)
 - `READER_ARG` config variable for passing flags to the reader
 - Atomic writes: converters now write to temp files and rename on success, preventing corrupt cache entries on interrupt
