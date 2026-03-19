@@ -123,7 +123,7 @@ If you own the file, the best workaround is to set the page layout in the spread
 
 ## Changelog
 
-#### 2025-03-19
+#### 2026-03-19
 - Version flag (`-V`)
 - `READER_ARG` config variable for passing flags to the reader
 - Atomic writes: converters now write to temp files and rename on success, preventing corrupt cache entries on interrupt
@@ -135,7 +135,7 @@ If you own the file, the best workaround is to set the page layout in the spread
 
 -- iuliandita
 
-#### 2025-03-18
+#### 2026-03-18
 - Security and POSIX fixes, verbose output behind `-v` flag
 - Conversion error handling, cache cleanup (`-c` flag)
 - Added macro-enabled Office formats (xlsm, xlsb, docm, pptm, ppsx, dotx)
