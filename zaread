@@ -48,12 +48,27 @@ err() {
 }
 
 usage() {
-	echo "Usage: zaread [-v] [-c] [-V] <file>" >&2
+	echo "Usage: zaread [-v] [-f] [-c] [-V] [-h] <file>" >&2
 }
 
-while getopts "vhcV" opt; do
+# Run a converter that writes to a .part temp file, handle errors, rename on success.
+# Usage: run_convert <display_name> <cmd> [args...]
+run_convert() {
+	_name="$1"; shift
+	if ! "$@"; then
+		rm -f "$ZA_CACHE_DIR/$pdffile.part"
+		err "conversion failed: $_name $file"
+		exit 3
+	fi
+	mv "$ZA_CACHE_DIR/$pdffile.part" "$ZA_CACHE_DIR/$pdffile"
+}
+
+FORCE=0
+
+while getopts "vhcfV" opt; do
 	case "$opt" in
 	v) VERBOSE=1 ;;
+	f) FORCE=1 ;;
 	c)
 		if [ -d "$ZA_CACHE_DIR" ]; then
 			rm -rf "${ZA_CACHE_DIR:?}"/*
@@ -96,6 +111,11 @@ if ! command -v "$READER" >/dev/null; then
 	exit 1
 fi
 
+if ! command -v file >/dev/null; then
+	err "file is not in PATH (needed for MIME detection)"
+	exit 1
+fi
+
 log "Reader: $READER"
 
 ## Resolve file path
@@ -103,15 +123,7 @@ log "Reader: $READER"
 file="$(basename "$path")"
 log "File: $file"
 
-case "$path" in
-/*)
-	directory="$(dirname "$path")"
-	;;
-*)
-	directory="${PWD}/$(dirname "$path")"
-	;;
-esac
-
+directory="$(cd "$(dirname "$path")" && pwd)"
 log "Directory: $directory"
 
 # Detect MIME type
@@ -128,10 +140,13 @@ log "Cache file: $pdffile"
 
 file_converter=""
 
-# Check for cached conversion first
-if [ -f "$ZA_CACHE_DIR/$pdffile" ]; then
+# Check for cached conversion first (skip with -f)
+if [ "$FORCE" -eq 0 ] && [ -f "$ZA_CACHE_DIR/$pdffile" ]; then
 	file_converter="none_converted"
 else
+	if [ "$FORCE" -eq 1 ] && [ -f "$ZA_CACHE_DIR/$pdffile" ]; then
+		log "Force re-conversion (ignoring cache)"
+	fi
 	case "$file_mt" in
 	"application/pdf" | "image/vnd.djvu" | "application/epub+zip")
 		file_converter="none_original"
@@ -209,8 +224,6 @@ case "$file_converter" in
 	# _ARG vars intentionally unquoted to allow multi-argument values
 	case "$file_converter" in
 	"$OFFICE_CMD")
-		# soffice names output by replacing/appending .pdf;
-		# compute expected name before conversion so we can clean up on failure
 		case "$file" in
 		.*.*)
 			tmpfile="${file%.*}.pdf"
@@ -236,30 +249,15 @@ case "$file_converter" in
 		;;
 	"$MOBI_CMD")
 		# shellcheck disable=SC2086
-		if ! "$MOBI_CMD" $MOBI_ARG "$directory/$file" "$ZA_CACHE_DIR/$pdffile.part"; then
-			rm -f "$ZA_CACHE_DIR/$pdffile.part"
-			err "conversion failed: $MOBI_CMD $file"
-			exit 3
-		fi
-		mv "$ZA_CACHE_DIR/$pdffile.part" "$ZA_CACHE_DIR/$pdffile"
+		run_convert "$MOBI_CMD" "$MOBI_CMD" $MOBI_ARG "$directory/$file" "$ZA_CACHE_DIR/$pdffile.part"
 		;;
 	"$MD_CMD")
 		# shellcheck disable=SC2086
-		if ! "$MD_CMD" $MD_ARG "$directory/$file" -o "$ZA_CACHE_DIR/$pdffile.part"; then
-			rm -f "$ZA_CACHE_DIR/$pdffile.part"
-			err "conversion failed: $MD_CMD $file"
-			exit 3
-		fi
-		mv "$ZA_CACHE_DIR/$pdffile.part" "$ZA_CACHE_DIR/$pdffile"
+		run_convert "$MD_CMD" "$MD_CMD" $MD_ARG "$directory/$file" -o "$ZA_CACHE_DIR/$pdffile.part"
 		;;
 	"$TYPST_CMD")
 		# shellcheck disable=SC2086
-		if ! "$TYPST_CMD" $TYPST_ARG "$directory/$file" "$ZA_CACHE_DIR/$pdffile.part"; then
-			rm -f "$ZA_CACHE_DIR/$pdffile.part"
-			err "conversion failed: $TYPST_CMD $file"
-			exit 3
-		fi
-		mv "$ZA_CACHE_DIR/$pdffile.part" "$ZA_CACHE_DIR/$pdffile"
+		run_convert "$TYPST_CMD" "$TYPST_CMD" $TYPST_ARG "$directory/$file" "$ZA_CACHE_DIR/$pdffile.part"
 		;;
 	esac
 	log "Opening converted file"
