@@ -32,6 +32,7 @@ Yes. Create a config file at `~/.config/zaread/zareadrc` (or `$XDG_CONFIG_HOME/z
 
 ```sh
 READER="your-viewer"
+READER_ARG="--mode=fullscreen"
 OFFICE_CMD="your-converter"
 # etc.
 ```
@@ -45,11 +46,12 @@ At work I often need to open doc, docx, ppt, pptx files in read only mode. I hat
 ## Usage
 
 ```
-zaread [-v] [-c] <file>
+zaread [-v] [-c] [-V] <file>
 ```
 
 - `-v` -- verbose output (shows MIME detection, cache paths, converter used)
 - `-c` -- clear the conversion cache (`~/.cache/zaread/`)
+- `-V` -- print version and exit
 
 ## Getting started
 
@@ -120,6 +122,18 @@ When converting spreadsheets (xlsx, ods, csv) to PDF, LibreOffice uses the file'
 If you own the file, the best workaround is to set the page layout in the spreadsheet itself (landscape, larger paper size, or "fit all columns to one page" under print settings) before opening it with zaread.
 
 ## Changelog
+
+#### 2025-03-19
+- Version flag (`-V`)
+- `READER_ARG` config variable for passing flags to the reader
+- Atomic writes: converters now write to temp files and rename on success, preventing corrupt cache entries on interrupt
+- LibreOffice instance isolation: concurrent conversions no longer conflict with running LibreOffice
+- Fixed `text/markdown` MIME detection on systems with newer shared-mime-info
+- Replaced fragile `sed` cache key generation with pure POSIX shell expansion
+- Fixed MOBI files with `application/x-mobipocket-ebook` MIME type not needing `.mobi` extension
+- Typst conversion uses the standard converter flow instead of a special case
+
+-- iuliandita
 
 #### 2025-03-18
 - Security and POSIX fixes, verbose output behind `-v` flag
